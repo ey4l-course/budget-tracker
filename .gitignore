@@ -1,0 +1,54 @@
+# =========================================
+# Global ignore for multi-module Maven project
+# =========================================
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Maven wrapper logs and build outputs
+**/target/
+**/build/
+**/out/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+**/*.log
+
+# Temporary / backup files
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Environment and local config
+.env
+**/application-*.yaml.local
+**/application-*.properties.local
+
+# Compiled classes and packaged artifacts
+**/*.class
+**/*.jar
+**/*.war
+**/*.ear
+
+# Test reports
+**/surefire-reports/
+**/test-output/
+
+# ================================
+# Exclusions: keep these in Git
+# ================================
+# Keep wrapper scripts (important for builds)
+!**/mvnw
+!**/mvnw.cmd
+!**/.mvn/wrapper/maven-wrapper.properties
+
+# Keep module-level .gitignore and .gitattributes files
+!**/.gitignore
+!**/.gitattributes
