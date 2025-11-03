@@ -1,0 +1,6 @@
+server:
+  port: ${server.users.port}
+
+spring:
+  config:
+    import: "file:${HOME}/projects/budget/config/${APP_ENV:dev}.yaml"

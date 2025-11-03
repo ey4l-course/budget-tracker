@@ -1,0 +1,19 @@
+env: dev
+routes:
+  gateway: http://localhost:8080
+  auth: http://localhost:8081
+  users: http://localhost:8082
+  admin: http://localhost:8083
+  transactions: http://localhost:8084
+
+server:
+  gateway:
+    port: 8080
+  auth:
+    port: 8081
+  users:
+    port: 8082
+  admin:
+    port: 8083
+  transactions:
+    port: 8084

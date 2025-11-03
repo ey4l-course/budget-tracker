@@ -6,16 +6,16 @@ This project is a multi-microservice architecture for a budget tracker applicati
 ## Microservices
 
 ### API Gateway
-- **Purpose:** Routes all incoming requests to the appropriate internal services.
+- **Purpose:** Routes all incoming requests to the appropriate internal services. Separates public endpoints from those which requires authentication.
 - **Endpoints:** No business logic, just routing and basic checks.
 
 ### Public Microservice
 - **Purpose:** Handles endpoints that do not require authentication.
-- **Endpoints:** User registration, login, forgot password/username, about, and contact.
 
 ### User Microservice
 - **Purpose:** Manages authenticated user functionalities.
-- **Endpoints:** Category management, income entry, transaction details and edits, and monthly summaries.
+- **Private endpoints:** Category management, income entry, transaction details and edits, and monthly summaries.
+- **Public endpoints:** User registration, login, forgot password/username, about, and contact.
 
 ### Admin Microservice
 - **Purpose:** For admin-level functions.
@@ -24,15 +24,6 @@ This project is a multi-microservice architecture for a budget tracker applicati
 ### Authentication Microservice
 - **Purpose:** Internal service for handling all authentication.
 - **Endpoints:** Internal APIs for validating tokens and sessions.
-
-### Logging and Monitoring Microservice
-- **Purpose:** Collects logs from all services and forwards them to a central logging system.
-- **Endpoints:** Internal only, for log aggregation.
-
-## Next Steps
-- Begin with basic implementation of each service.
-- Decide on infrastructure (Docker, bare metal, database placement) as the project evolves.
-- Integrate each service and test routing through the API Gateway.
 
 ---
 
