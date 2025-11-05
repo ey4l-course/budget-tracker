@@ -1,0 +1,50 @@
+package com.budget.gateway.util;
+
+import com.budget.common.dto.RequestContextDTO;
+import com.budget.common.utilities.LogUtil;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.time.Instant;
+
+@Component
+public class ContextInitUtil extends OncePerRequestFilter {
+    private final IpUtil ipUtil;
+    private final LogUtil logUtil;
+
+    public ContextInitUtil (IpUtil ipUtil,
+                            LogUtil logUtil){
+        this.ipUtil = ipUtil;
+        this.logUtil = logUtil;
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+        //Initiate DTO and set as request attribute
+        RequestContextDTO dto = new RequestContextDTO(request.getRequestURI(), request.getMethod(), request.getHeader("user-agent"));
+        request.setAttribute("context", dto);
+
+        //Extract IP address
+        try {
+            dto.setIp(ipUtil.ExtractIp(request));
+        }catch (UnknownHostException e) {
+            dto.setIp("[UNRESOLVED] " + e.getMessage());
+        }catch (Exception e){
+            dto.setDebug(e);
+        }
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            dto.setEndProcess(Instant.now());
+            logUtil.logRequest(dto);
+        }
+    }
+}
