@@ -47,7 +47,9 @@ public class ContextInitUtil extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } finally {
             dto.setEndProcess(Instant.now());
-            logUtil.logRequest(dto);
+            String uuid = logUtil.logRequest(dto);
+            if (uuid != null)
+                response.addHeader("X-log-ID", uuid);
         }
     }
 }

@@ -3,6 +3,7 @@ package com.budget.common.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatusCode;
 
 import java.time.Instant;
 
@@ -17,7 +18,7 @@ public class RequestContextDTO {
         private String method;
         private String entryRoute;
         private String outcome;
-        private int statusCode;
+        private HttpStatusCode statusCode;
         private String statusMessage;
         private Instant startProcess;
         private Instant endProcess;

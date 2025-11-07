@@ -6,6 +6,7 @@ import com.budget.common.dto.RequestContextDTO;
 import com.budget.gateway.service.GatewayService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,8 +24,8 @@ public class GatewayController {
                                             HttpServletRequest request){
         RequestContextDTO contextDTO = contextHandler(request);
         contextDTO.setUserName(user.getUsername());
-        service.register(user);
-        markSuccess(contextDTO, 201, "User " + contextDTO.getUserName() + " successfully created");
+        if (service.register(user).isSameCodeAs(HttpStatus.CREATED))
+            markSuccess(contextDTO, HttpStatus.CREATED, "User " + contextDTO.getUserName() + " successfully created");
         return ResponseEntity.status(HttpStatus.CREATED).body(contextDTO.getStatusMessage());
     }
 
@@ -39,7 +40,7 @@ public class GatewayController {
     }
 
     private void markSuccess(RequestContextDTO contextDTO,
-                             int statusCode,
+                             HttpStatusCode statusCode,
                              String statusMsg){
         contextDTO.setOutcome("[SUCCESS]");
         contextDTO.setCategory(LogCategory.OPERATION);

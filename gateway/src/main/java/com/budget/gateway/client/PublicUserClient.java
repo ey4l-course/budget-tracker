@@ -10,6 +10,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @FeignClient(name = "publicUser", url = "${routes.users}")
 public interface PublicUserClient {
     @RequestMapping(method = RequestMethod.POST, value = "/{path}", consumes = "application/json")
-    ResponseEntity<String> forward (@PathVariable("path") String path,
+    ResponseEntity<Void> forward (@PathVariable("path") String path,
                                     @RequestBody String body);
 }
