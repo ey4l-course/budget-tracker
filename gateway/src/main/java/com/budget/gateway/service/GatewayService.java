@@ -29,6 +29,10 @@ public class GatewayService {
     public HttpStatusCode register(RegisterDto user) throws JsonProcessingException {
         String jsonBody = mapper.writeValueAsString(user);
         ResponseEntity<Void> res = userClient.forward("register", jsonBody);
+        if (res.getStatusCode() == HttpStatus.CONFLICT){
+            cacheService.updateCache(user.getUsername());
+            throw new IllegalArgumentException(String.format("Username %s already taken", user.getUsername()));
+        }
         if (res.getStatusCode() == HttpStatus.CREATED)
             cacheService.confirmRegistration(user.getUsername());
         return res.getStatusCode();

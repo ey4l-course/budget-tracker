@@ -47,6 +47,10 @@ public class UsernameCacheService {
         return lockedUserNames.putIfAbsent(username, Instant.now().plusSeconds(120)) == null;
     }
 
+    protected void updateCache (String username){
+        takenUsernames.add(username);
+    }
+
     private boolean isTaken (String username) {
         return takenUsernames.contains(username);
     }

@@ -2,7 +2,8 @@ env: dev
 routes:
   gateway: http://localhost:8080
   auth: http://localhost:8081
-  users: http://localhost:8082
+  users: http://localhost:8082/users
+  public: http://localhost:8082/public
   admin: http://localhost:8083
   transactions: http://localhost:8084
 

@@ -9,6 +9,6 @@ import java.util.List;
 
 @FeignClient(name = "cacheUsernames", url = "${routes.users}")
 public interface CacheUsernamesClient {
-    @RequestMapping(method = RequestMethod.GET, value = "/getAllUsernames", consumes = "application/json")
+    @RequestMapping(method = RequestMethod.GET, value = "/public/update-cache", consumes = "application/json")
     ResponseEntity<List<String>> getUsernames ();
 }
