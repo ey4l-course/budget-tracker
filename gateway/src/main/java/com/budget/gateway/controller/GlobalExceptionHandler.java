@@ -2,6 +2,7 @@ package com.budget.gateway.controller;
 
 import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RequestContextDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> unexpectedErrors (Exception e,
-                                                         HttpServletRequest request){
+                                                         HttpServletRequest request) throws JsonProcessingException {
         RequestContextDTO contextDTO = contextHandler(request);
         contextDTO.setCategory(LogCategory.UNEXPECTED_ERROR);
         contextDTO.setDebug(e);

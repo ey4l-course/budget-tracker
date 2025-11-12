@@ -4,6 +4,7 @@ import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RegisterDto;
 import com.budget.common.dto.RequestContextDTO;
 import com.budget.gateway.service.GatewayService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -21,7 +22,7 @@ public class GatewayController {
     //Public endpoints
     @PostMapping("/register")
     public ResponseEntity<String> register (RegisterDto user,
-                                            HttpServletRequest request){
+                                            HttpServletRequest request) throws JsonProcessingException {
         RequestContextDTO contextDTO = contextHandler(request);
         contextDTO.setUserName(user.getUsername());
         if (service.register(user).isSameCodeAs(HttpStatus.CREATED))
