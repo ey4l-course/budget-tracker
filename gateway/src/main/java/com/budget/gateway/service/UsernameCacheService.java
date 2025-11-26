@@ -27,11 +27,15 @@ public class UsernameCacheService {
     }
     @PostConstruct
     private void init (){
-        loadFromDb();
+        try {
+            loadFromDb();
+        }catch (Exception e){
+            System.out.println("Exception caught: " + e.getMessage());
+        }
     }
 
     @Scheduled(fixedRate = 120000)
-    private void loadFromDb() {
+    protected void loadFromDb() {
         ResponseEntity<List<String>> res = cacheClient.getUsernames();
         if (res.getBody() != null) {
             takenUsernames.clear();

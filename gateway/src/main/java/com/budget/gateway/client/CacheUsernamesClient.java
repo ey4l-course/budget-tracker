@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.List;
 
-@FeignClient(name = "cacheUsernames", url = "${routes.users}")
+@FeignClient(name = "cacheUsernames", url = "${routes.public}")
 public interface CacheUsernamesClient {
-    @RequestMapping(method = RequestMethod.GET, value = "/public/update-cache", consumes = "application/json")
+    @RequestMapping(method = RequestMethod.GET, value = "/update-cache")
     ResponseEntity<List<String>> getUsernames ();
 }

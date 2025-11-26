@@ -5,35 +5,31 @@ import com.budget.common.dto.RequestContextDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler (IllegalArgumentException.class)
-    public ResponseEntity<String> illegalArgumentHandler (IllegalArgumentException e,
+    public void illegalArgumentHandler (IllegalArgumentException e,
                                                           HttpServletRequest request){
         RequestContextDTO contextDTO = contextHandler(request);
         contextDTO.setCategory(LogCategory.USER_ERROR);
-        contextDTO.setDebug(e);
         contextDTO.setStatusCode(HttpStatus.BAD_REQUEST);
+        contextDTO.setDebug(e);
         contextDTO.setStatusMessage(e.getMessage());
         contextDTO.setOutcome("[REJECTED]");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> unexpectedErrors (Exception e,
+    public void unexpectedErrors (Exception e,
                                                          HttpServletRequest request) throws JsonProcessingException {
         RequestContextDTO contextDTO = contextHandler(request);
         contextDTO.setCategory(LogCategory.UNEXPECTED_ERROR);
         contextDTO.setDebug(e);
         contextDTO.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-        contextDTO.setStatusMessage(e.getMessage());
+        contextDTO.setStatusMessage("Internal server error");
         contextDTO.setOutcome("[FAILURE]");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Internal server error");
     }
 
     private RequestContextDTO contextHandler (HttpServletRequest request){

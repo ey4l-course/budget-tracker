@@ -25,7 +25,7 @@ public class UserRepository {
 
     public void register(RegisterDto user) {
         Integer addressId = insertAddress(user.getAddress());
-        String sql = String.format("INSERT INTO %s (username, password, givenName, surname, mobile, email, address_id)" +
+        String sql = String.format("INSERT INTO %s (username, password, given_name, surname, mobile, email, address_id)" +
                 " VALUES (?, ?, ?, ?, ?, ?, ?)", USERS);
         jdbc.update(sql, user.getUsername(), user.getPassword(), user.getGivenName(), user.getSurname(), user.getMobile(), user.getEmail(), addressId);
     }

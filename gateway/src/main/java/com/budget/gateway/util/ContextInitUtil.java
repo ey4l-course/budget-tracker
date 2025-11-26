@@ -1,5 +1,6 @@
 package com.budget.gateway.util;
 
+import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RequestContextDTO;
 import com.budget.common.utilities.LogUtil;
 import jakarta.servlet.FilterChain;
@@ -8,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -45,11 +47,21 @@ public class ContextInitUtil extends OncePerRequestFilter {
         }
         try {
             filterChain.doFilter(request, response);
+        }catch (Exception e){
+            dto.setCategory(LogCategory.UNEXPECTED_ERROR);
+            dto.setDebug(e);
+            dto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+            dto.setStatusMessage("Internal server error");
+            dto.setOutcome("[REJECTED]");
         } finally {
             dto.setEndProcess(Instant.now());
             String uuid = logUtil.logRequest(dto);
             if (uuid != null)
                 response.addHeader("X-log-ID", uuid);
+            if (!response.isCommitted()){
+                response.getWriter().write(dto.getStatusMessage());
+                response.setStatus(dto.getStatusCode().value());
+            }
         }
     }
 }

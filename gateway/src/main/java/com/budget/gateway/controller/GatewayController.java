@@ -8,9 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class GatewayController {
@@ -20,14 +18,23 @@ public class GatewayController {
         this.service = service;
     }
     //Public endpoints
+
+    @GetMapping("/check-username")
+    public void isUserNameAvailable (@RequestParam("username") String username,
+                                                 HttpServletRequest request){
+        RequestContextDTO contextDTO = contextHandler(request);
+        contextDTO.setUserName(username);
+        boolean res = service.checkUsernameAvailability(username);
+        markSuccess(contextDTO, HttpStatus.OK, String.valueOf(res));
+    }
+
     @PostMapping("/register")
-    public ResponseEntity<String> register (RegisterDto user,
-                                            HttpServletRequest request) throws JsonProcessingException {
+    public void register (@RequestBody RegisterDto user,
+                                            HttpServletRequest request) throws Exception {
         RequestContextDTO contextDTO = contextHandler(request);
         contextDTO.setUserName(user.getUsername());
         if (service.register(user).isSameCodeAs(HttpStatus.CREATED))
             markSuccess(contextDTO, HttpStatus.CREATED, "User " + contextDTO.getUserName() + " successfully created");
-        return ResponseEntity.status(HttpStatus.CREATED).body(contextDTO.getStatusMessage());
     }
 
 

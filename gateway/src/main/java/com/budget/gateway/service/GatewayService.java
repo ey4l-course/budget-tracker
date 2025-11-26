@@ -1,5 +1,6 @@
 package com.budget.gateway.service;
 
+import com.budget.common.dto.FeignResponseDTO;
 import com.budget.common.dto.RegisterDto;
 import com.budget.gateway.client.PublicUserClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -36,17 +37,25 @@ public class GatewayService {
         return cacheService.tryReserve(userName);
     }
 
-    public HttpStatusCode register(RegisterDto user) throws JsonProcessingException {
+    public HttpStatusCode register(RegisterDto user) {
         validateRegistrationData(user);
-        String jsonBody = mapper.writeValueAsString(user);
-        ResponseEntity<Void> res = userClient.forward("register", jsonBody);
-        if (res.getStatusCode() == HttpStatus.CONFLICT){
+        String jsonBody;
+        try {
+            jsonBody = mapper.writeValueAsString(user);
+        }catch (JsonProcessingException e){
+            throw new RuntimeException(e);
+        }
+        ResponseEntity<FeignResponseDTO> result = userClient.forward("register", jsonBody);
+        if (!result.getStatusCode().is2xxSuccessful() || result.getBody() == null)
+            throw new RuntimeException("userClient.forward failed");
+        FeignResponseDTO res = result.getBody();
+        if (res.getStatus() == 409){
             cacheService.updateCache(user.getUsername());
             throw new IllegalArgumentException(String.format("Username %s already taken", user.getUsername()));
         }
-        if (res.getStatusCode() == HttpStatus.CREATED)
+        if (res.getStatus() == 200)
             cacheService.confirmRegistration(user.getUsername());
-        return res.getStatusCode();
+        return HttpStatus.CREATED;
     }
 
     private void validateRegistrationData (RegisterDto user) {

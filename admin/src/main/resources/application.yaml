@@ -3,4 +3,4 @@ server:
 
 spring:
   config:
-    import: "file:${HOME}/projects/budget/config/${APP_ENV:dev}.yaml"
+    import: "classpath:/${APP_ENV:dev}.yaml"
