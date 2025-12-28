@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
         contextDTO.setCategory(LogCategory.UNEXPECTED_ERROR);
         contextDTO.setDebug(e);
         contextDTO.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-        contextDTO.setStatusMessage(e.getMessage());
+        contextDTO.setMessage(e.getMessage());
         contextDTO.setOutcome("[FAILURE]");
         String uuid = logger.logRequest(contextDTO);
         return ResponseEntity

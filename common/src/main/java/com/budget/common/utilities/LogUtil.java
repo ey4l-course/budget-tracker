@@ -48,7 +48,7 @@ public class LogUtil {
         logPayload.put("entryRoute", request.getEntryRoute());
         logPayload.put("outcome", request.getOutcome());
         logPayload.put("statusCode", request.getStatusCode());
-        logPayload.put("statusMessage", request.getStatusMessage());
+        logPayload.put("statusMessage", request.getMessage());
         logPayload.put("startProcess", ISO_FORMAT.format(request.getStartProcess()));
         if (request.getEndProcess() != null)
             logPayload.put("endProcess", ISO_FORMAT.format(request.getEndProcess()));

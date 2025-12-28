@@ -3,8 +3,8 @@ package com.budget.gateway.controller;
 import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RegisterDto;
 import com.budget.common.dto.RequestContextDTO;
+import com.budget.gateway.dto.ValidationDTO;
 import com.budget.gateway.service.GatewayService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -24,8 +24,11 @@ public class GatewayController {
                                                  HttpServletRequest request){
         RequestContextDTO contextDTO = contextHandler(request);
         contextDTO.setUserName(username);
+        ValidationDTO dto = new ValidationDTO("username", username, null);
+        contextDTO.setMessage(dto);
         boolean res = service.checkUsernameAvailability(username);
-        markSuccess(contextDTO, HttpStatus.OK, String.valueOf(res));
+        dto.setMessage(res ? "Username available" : "Username taken");
+        markSuccess(contextDTO, HttpStatus.OK, dto);
     }
 
     @PostMapping("/register")
@@ -49,10 +52,10 @@ public class GatewayController {
 
     private void markSuccess(RequestContextDTO contextDTO,
                              HttpStatusCode statusCode,
-                             String statusMsg){
+                             Object successMsg){
         contextDTO.setOutcome("[SUCCESS]");
         contextDTO.setCategory(LogCategory.OPERATION);
         contextDTO.setStatusCode(statusCode);
-        contextDTO.setStatusMessage(statusMsg);
+        contextDTO.setMessage(successMsg);
     }
 }

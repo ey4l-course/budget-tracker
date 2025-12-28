@@ -2,6 +2,7 @@ package com.budget.gateway.controller;
 
 import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RequestContextDTO;
+import com.budget.gateway.dto.ValidationDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,8 @@ public class GlobalExceptionHandler {
         contextDTO.setCategory(LogCategory.USER_ERROR);
         contextDTO.setStatusCode(HttpStatus.BAD_REQUEST);
         contextDTO.setDebug(e);
-        contextDTO.setStatusMessage(e.getMessage());
+        ValidationDTO dto = (ValidationDTO) contextDTO.getMessage();
+        dto.setMessage(e.getMessage());
         contextDTO.setOutcome("[REJECTED]");
     }
 
@@ -28,7 +30,7 @@ public class GlobalExceptionHandler {
         contextDTO.setCategory(LogCategory.UNEXPECTED_ERROR);
         contextDTO.setDebug(e);
         contextDTO.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-        contextDTO.setStatusMessage("Internal server error");
+        contextDTO.setMessage("Internal server error");
         contextDTO.setOutcome("[FAILURE]");
     }
 

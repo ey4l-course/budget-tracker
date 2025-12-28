@@ -19,7 +19,7 @@ public class RequestContextDTO {
         private String entryRoute;
         private String outcome;
         private HttpStatusCode statusCode;
-        private String statusMessage;
+        private Object message;
         private Instant startProcess;
         private Instant endProcess;
         private Exception debug;
