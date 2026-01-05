@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/public")
 public class GatewayController {
     private final GatewayService service;
 
