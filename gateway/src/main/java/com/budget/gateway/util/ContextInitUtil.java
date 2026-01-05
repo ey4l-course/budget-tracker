@@ -60,15 +60,17 @@ public class ContextInitUtil extends OncePerRequestFilter {
             dto.setMessage("Internal server error");
             dto.setOutcome("[REJECTED]");
         } finally {
+            //Always perform
             dto.setEndProcess(Instant.now());
             String uuid = logUtil.logRequest(dto);
-
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
 
+            //Add log ID in header if exists
             if (uuid != null)
                 response.addHeader("X-log-ID", uuid);
 
+            //Write body if not already written - Should always be true
             if (!response.isCommitted()){
                 try{
                     response.setStatus(dto.getStatusCode().value());

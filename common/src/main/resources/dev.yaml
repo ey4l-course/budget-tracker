@@ -1,3 +1,4 @@
+#Common module
 env: dev
 routes:
   gateway: http://localhost:8080
@@ -18,3 +19,9 @@ server:
     port: 8083
   transactions:
     port: 8084
+
+app:
+  security:
+    cors:
+      allowed-origins:
+        - "http://localhost:5173"
