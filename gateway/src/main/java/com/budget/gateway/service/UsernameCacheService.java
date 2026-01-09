@@ -18,9 +18,7 @@ public class UsernameCacheService {
     private final Map<String, Instant> lockedUserNames;
     private final CacheUsernamesClient cacheClient;
 
-    public UsernameCacheService (Set<String> takenUsernames,
-                                 Map<String, Instant> lockedUserNames,
-                                 CacheUsernamesClient cacheClient){
+    public UsernameCacheService (CacheUsernamesClient cacheClient){
         this.takenUsernames = ConcurrentHashMap.newKeySet();
         this.lockedUserNames = new ConcurrentHashMap<>();
         this.cacheClient = cacheClient;

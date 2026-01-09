@@ -23,6 +23,7 @@ public class RegisterDto {
     public static class Address {
         private String state;
         private String city;
+        private String street;
         private int house;
         private int apartment;
         private String zipcode;

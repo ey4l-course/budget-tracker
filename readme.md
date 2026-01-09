@@ -1,19 +1,30 @@
 # Project Overview
-Update: Oct 27th, 2025
+Update: Jan 09, 2026
 
 This project is a multi-microservice architecture for a budget tracker application. It includes several distinct services, each with a specific role, and all traffic is routed through an API gateway.
 
 ## Microservices
 
 ### API Gateway
-- **Purpose:** Routes all incoming requests to the appropriate internal services. Separates public endpoints from those which requires authentication.
-- **Endpoints:** No business logic, just routing and basic checks.
+***Purpose:*** 
+- Routes all incoming requests to the appropriate internal services.
+- Separates public endpoints from those which requires authentication.
+- Owns request-response life-cycle, error handling and logging.
+- Owns Security filter and configurations.
 
-### Public Microservice
-- **Purpose:** Handles endpoints that do not require authentication.
+***Features:***
+- **request context filter:** a OncePerRequest filter with the highest precedence.
+It initiates a context DTO feeds it with preliminary data (route, source IP, etc...)
+and attaches it as request attribute for further enrichment during life-cycle.
+It is the owner of the request-response cycle and responsible for writing responses (overriding Spring mechanisms).
+Before commiting responses it gathers all information and logs it.
+- **Security filter:** A standard SecurityFilterChain that runs after context filter.
+It defines security configurations like CORS, CSRF and private/public endpoints.
 
 ### User Microservice
-- **Purpose:** Manages authenticated user functionalities.
+***Purpose:***
+- Handles public endpoints: register, login, forgot password, contact us.
+- Manages authenticated user functionalities.
 - **Private endpoints:** Category management, income entry, transaction details and edits, and monthly summaries.
 - **Public endpoints:** User registration, login, forgot password/username, about, and contact.
 
