@@ -9,6 +9,6 @@ spring:
 app:
   security:
     cors:
-      allowed-origins: []
+#      allowed-origins: []
       allowed-headers: ["Content-Type", "Cookie", "Accept", "Authorization"]
       exposed-headers: ["X-log-ID"]

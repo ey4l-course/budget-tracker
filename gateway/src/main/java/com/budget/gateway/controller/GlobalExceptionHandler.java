@@ -5,9 +5,13 @@ import com.budget.common.dto.RequestContextDTO;
 import com.budget.gateway.dto.ValidationDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+//*********************************************************************************
+//* Handlers do not write responses, ContextInitUtil owns the HttpServletResponse *
+//*********************************************************************************
 
 @ControllerAdvice
 public class GlobalExceptionHandler {

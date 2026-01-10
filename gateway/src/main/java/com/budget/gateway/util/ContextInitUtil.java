@@ -63,6 +63,10 @@ public class ContextInitUtil extends OncePerRequestFilter {
             //Always perform
             dto.setEndProcess(Instant.now());
             String uuid = logUtil.logRequest(dto);
+
+            if (dto.getStatusCode() == null)
+                dto.setStatusCode(HttpStatus.valueOf(response.getStatus()));
+
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
 
