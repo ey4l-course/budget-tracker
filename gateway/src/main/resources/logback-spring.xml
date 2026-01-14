@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+
+    <!-- ================================================================== -->
+    <!--  1. PROPERTIES                                                     -->
+    <!-- ================================================================== -->
+    <property name="LOG_DIR" value="${HOME}/logs" />
+    <property name="MAX_FILE_SIZE" value="10MB" />
+    <property name="MAX_HISTORY" value="30" />
+
+    <!-- ================================================================== -->
+    <!--  2. JSON ENCODER FOR ELK/SIEM                                      -->
+    <!-- ================================================================== -->
+    <!-- Produces one JSON log entry per line (ELK-friendly) -->
+    <appender name="MAIN_JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/gateway-main.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- Rotate daily or when passing MAX_FILE_SIZE -->
+            <fileNamePattern>${LOG_DIR}/gateway-main.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>5GB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                    <pattern>yyyy-MM-dd'T'HH:mm:ss.SSS'Z'</pattern>
+                </timestamp>
+                <logLevel />
+                <threadName />
+                <loggerName />
+                <message />
+                <context />
+                <mdc />
+                <arguments />
+            </providers>
+        </encoder>
+    </appender>
+
+    <!-- ================================================================== -->
+    <!--  3. SECONDARY FULL EXCEPTION LOG (ASYNC + SEPARATE THREAD)         -->
+    <!-- ================================================================== -->
+    <!-- Writes *complete* stacktraces to separate file for deep debugging -->
+
+    <appender name="FULL_ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/gateway-errors.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/gateway-errors.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>
+                %d{yyyy-MM-dd'T'HH:mm:ss.SSS'Z'} %-5level %logger{36} - %msg%n%ex%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- Make the ERROR log async so it never delays the main app -->
+    <appender name="ASYNC_FULL_ERROR" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>5000</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="FULL_ERROR_FILE"/>
+    </appender>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <!-- ================================================================== -->
+    <!--  4. LOGGERS                                                        -->
+    <!-- ================================================================== -->
+
+    <!-- Logger for full exceptions (LogUtil will use this directly) -->
+    <logger name="fullErrorLogger" level="ERROR" additivity="false">
+        <appender-ref ref="ASYNC_FULL_ERROR"/>
+    </logger>
+
+    <logger name="com.budget" level="INFO" additivity="false">
+        <appender-ref ref="MAIN_JSON_FILE" />
+    </logger>
+
+    <!-- Root logger (Gateway main structured JSON log) -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>

@@ -5,6 +5,7 @@ import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RequestContextDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
@@ -28,7 +29,7 @@ class LogUtilTest {
         request.setIp("127.0.0.1");
         request.setUserName("test_user");
         request.setOutcome("Test outcome");
-        request.setStatusCode(400);
+        request.setStatusCode(HttpStatus.BAD_REQUEST);
         request.setStatusMessage("Bad Request");
         request.setPayload("{\"username\":\"test_user\"}");
         request.setStartProcess(Instant.now());

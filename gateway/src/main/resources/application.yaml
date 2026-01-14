@@ -1,6 +1,14 @@
+#Gateway microservice
 server:
   port: ${server.gateway.port}
 
 spring:
   config:
-    import: "file:${HOME}/projects/budget/config/${APP_ENV:dev}.yaml"
+    import: "classpath:/${APP_ENV:dev}.yaml"
+
+app:
+  security:
+    cors:
+#      allowed-origins: []
+      allowed-headers: ["Content-Type", "Cookie", "Accept", "Authorization"]
+      exposed-headers: ["X-log-ID"]

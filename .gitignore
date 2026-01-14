@@ -41,6 +41,10 @@ Thumbs.db
 **/surefire-reports/
 **/test-output/
 
+#Other
+tree.txt
+Budget_Tracker.md
+
 # ================================
 # Exclusions: keep these in Git
 # ================================
