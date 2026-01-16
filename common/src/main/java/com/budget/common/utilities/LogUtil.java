@@ -33,7 +33,7 @@ public class LogUtil {
         String uuid = null;
         if (LogCategory.UNEXPECTED_ERROR.equals(request.getCategory())){
             uuid = UUID.randomUUID().toString();
-            fullErrorLogger.error("FULL STACK-TRACE", request.getDebug());
+            fullErrorLogger.error("FULL STACK-TRACE [log ID: {}]", uuid, request.getDebug());
         } else if (LogCategory.USER_ERROR.equals(request.getCategory())) {
             uuid = UUID.randomUUID().toString();
         }

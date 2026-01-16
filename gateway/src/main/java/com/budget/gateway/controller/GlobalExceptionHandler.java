@@ -5,7 +5,6 @@ import com.budget.common.dto.RequestContextDTO;
 import com.budget.gateway.dto.ValidationDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,8 +21,12 @@ public class GlobalExceptionHandler {
         contextDTO.setCategory(LogCategory.USER_ERROR);
         contextDTO.setStatusCode(HttpStatus.BAD_REQUEST);
         contextDTO.setDebug(e);
-        ValidationDTO dto = (ValidationDTO) contextDTO.getMessage();
-        dto.setMessage(e.getMessage());
+        if (contextDTO.getMessage() != null) {
+            ValidationDTO dto = (ValidationDTO) contextDTO.getMessage();
+            dto.setMessage(e.getMessage());
+        }else {
+            contextDTO.setMessage(e.getMessage());
+        }
         contextDTO.setOutcome("[REJECTED]");
     }
 

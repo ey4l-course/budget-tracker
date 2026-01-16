@@ -4,7 +4,7 @@ import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RegisterDto;
 import com.budget.common.dto.RequestContextDTO;
 import com.budget.gateway.dto.ValidationDTO;
-import com.budget.gateway.service.GatewayService;
+import com.budget.gateway.service.GatewayPublicService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/public")
 public class GatewayController {
-    private final GatewayService service;
+    private final GatewayPublicService service;
 
-    public GatewayController (GatewayService service){
+    public GatewayController (GatewayPublicService service){
         this.service = service;
     }
     //Public endpoints
@@ -40,8 +40,7 @@ public class GatewayController {
         if (service.register(user).isSameCodeAs(HttpStatus.CREATED))
             markSuccess(contextDTO, HttpStatus.CREATED, "User " + contextDTO.getUserName() + " successfully created");
     }
-
-
+    
     //Helper
     private RequestContextDTO contextHandler (HttpServletRequest request){
         RequestContextDTO ctx = (RequestContextDTO) request.getAttribute("context");
