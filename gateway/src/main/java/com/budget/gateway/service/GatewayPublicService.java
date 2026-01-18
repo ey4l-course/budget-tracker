@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,14 +18,17 @@ public class GatewayPublicService {
     private final ObjectMapper mapper;
     private final UsernameCacheService cacheService;
     private final ValidatorsUtil validators;
+    private final BCryptPasswordEncoder encoder;
     public GatewayPublicService(PublicUserClient userClient,
                                 ObjectMapper mapper,
                                 UsernameCacheService cacheService,
-                                ValidatorsUtil validators){
+                                ValidatorsUtil validators,
+                                BCryptPasswordEncoder encoder){
         this.publicUserClient = userClient;
         this.mapper = mapper;
         this.cacheService = cacheService;
         this.validators = validators;
+        this.encoder = encoder;
     }
 
     public boolean checkUsernameAvailability (String userName) {
@@ -35,6 +39,7 @@ public class GatewayPublicService {
 
     public HttpStatusCode register(RegisterDto user) {
         validators.validateRegistrationData(user);
+        encryptPassword(user);
         String jsonBody;
         try {
             jsonBody = mapper.writeValueAsString(user);
@@ -52,5 +57,10 @@ public class GatewayPublicService {
         if (res.getStatus() == 200)
             cacheService.confirmRegistration(user.getUsername());
         return HttpStatus.CREATED;
+    }
+
+    private void encryptPassword(RegisterDto user) {
+        String rawPassword = user.getPassword();
+        user.setPassword(encoder.encode(rawPassword));
     }
 }
