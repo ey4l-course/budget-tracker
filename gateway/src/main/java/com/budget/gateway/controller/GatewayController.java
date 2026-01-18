@@ -3,6 +3,7 @@ package com.budget.gateway.controller;
 import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RegisterDto;
 import com.budget.common.dto.RequestContextDTO;
+import com.budget.gateway.dto.LoginDto;
 import com.budget.gateway.dto.ValidationDTO;
 import com.budget.gateway.service.GatewayPublicService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,7 +41,14 @@ public class GatewayController {
         if (service.register(user).isSameCodeAs(HttpStatus.CREATED))
             markSuccess(contextDTO, HttpStatus.CREATED, "User " + contextDTO.getUserName() + " successfully created");
     }
-    
+    @PostMapping("/login")
+    public void login (@RequestBody LoginDto login,
+                       HttpServletRequest request){
+        RequestContextDTO contextDTO = contextHandler(request);
+        contextDTO.setUserName(login.getUsername());
+        if (service.login(login).isSameCodeAs(HttpStatus.OK))
+            markSuccess(contextDTO, HttpStatus.OK, null);
+    }
     //Helper
     private RequestContextDTO contextHandler (HttpServletRequest request){
         RequestContextDTO ctx = (RequestContextDTO) request.getAttribute("context");

@@ -3,6 +3,7 @@ package com.budget.gateway.service;
 import com.budget.common.dto.FeignResponseDTO;
 import com.budget.common.dto.RegisterDto;
 import com.budget.gateway.client.PublicUserClient;
+import com.budget.gateway.dto.LoginDto;
 import com.budget.gateway.util.ValidatorsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,6 +58,19 @@ public class GatewayPublicService {
         if (res.getStatus() == 200)
             cacheService.confirmRegistration(user.getUsername());
         return HttpStatus.CREATED;
+    }
+
+    public HttpStatusCode login(LoginDto login) {
+        String jsonBody;
+        try {
+            jsonBody = mapper.writeValueAsString(login);
+        }catch (JsonProcessingException e){
+            throw new RuntimeException(e);
+        }
+        ResponseEntity<FeignResponseDTO> result = publicUserClient.forward("login", jsonBody);
+        if(!result.getStatusCode().is2xxSuccessful() || result.getBody() == null)
+            throw new RuntimeException("publicUserClient.forward failed");
+        return result.getStatusCode();
     }
 
     private void encryptPassword(RegisterDto user) {
