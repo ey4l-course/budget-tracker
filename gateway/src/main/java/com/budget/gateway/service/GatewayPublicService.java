@@ -7,10 +7,10 @@ import com.budget.gateway.dto.LoginDto;
 import com.budget.gateway.util.ValidatorsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,17 +19,14 @@ public class GatewayPublicService {
     private final ObjectMapper mapper;
     private final UsernameCacheService cacheService;
     private final ValidatorsUtil validators;
-    private final BCryptPasswordEncoder encoder;
     public GatewayPublicService(PublicUserClient userClient,
                                 ObjectMapper mapper,
                                 UsernameCacheService cacheService,
-                                ValidatorsUtil validators,
-                                BCryptPasswordEncoder encoder){
+                                ValidatorsUtil validators){
         this.publicUserClient = userClient;
         this.mapper = mapper;
         this.cacheService = cacheService;
         this.validators = validators;
-        this.encoder = encoder;
     }
 
     public boolean checkUsernameAvailability (String userName) {
@@ -39,25 +36,23 @@ public class GatewayPublicService {
     }
 
     public HttpStatusCode register(RegisterDto user) {
-        validators.validateRegistrationData(user);
-        encryptPassword(user);
-        String jsonBody;
         try {
-            jsonBody = mapper.writeValueAsString(user);
-        }catch (JsonProcessingException e){
+            validators.validateRegistrationData(user);
+            ResponseEntity<FeignResponseDTO> result = publicUserClient.forward("register", stringify(user));
+            FeignResponseDTO res = result.getBody();
+            if (res.getStatus() == 201){
+                cacheService.confirmRegistration(user.getUsername());
+                return HttpStatus.CREATED;
+            }
+            if (res.getStatus() == 409) {
+                cacheService.updateCache(user.getUsername());
+                throw new IllegalArgumentException(String.format("Username %s already taken", user.getUsername()));
+            }else {
+                throw new RuntimeException(stringify(res));
+            }
+        }catch (FeignException e){
             throw new RuntimeException(e);
         }
-        ResponseEntity<FeignResponseDTO> result = publicUserClient.forward("register", jsonBody);
-        if (!result.getStatusCode().is2xxSuccessful() || result.getBody() == null)
-            throw new RuntimeException("publicUserClient.forward failed");
-        FeignResponseDTO res = result.getBody();
-        if (res.getStatus() == 409){
-            cacheService.updateCache(user.getUsername());
-            throw new IllegalArgumentException(String.format("Username %s already taken", user.getUsername()));
-        }
-        if (res.getStatus() == 200)
-            cacheService.confirmRegistration(user.getUsername());
-        return HttpStatus.CREATED;
     }
 
     public HttpStatusCode login(LoginDto login) {
@@ -73,8 +68,11 @@ public class GatewayPublicService {
         return result.getStatusCode();
     }
 
-    private void encryptPassword(RegisterDto user) {
-        String rawPassword = user.getPassword();
-        user.setPassword(encoder.encode(rawPassword));
+    private String stringify(Object obj){
+        try {
+            return mapper.writeValueAsString(obj);
+        }catch (JsonProcessingException e){
+            throw new RuntimeException(e);
+        }
     }
 }

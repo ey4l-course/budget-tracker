@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class FeignResponseDTO {
     private int status;
     private String msg;
+    private String source;
 }

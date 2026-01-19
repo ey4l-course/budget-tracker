@@ -1,11 +1,10 @@
-package com.budget.users.controller;
+package com.budget.auth.controller;
 
 import com.budget.common.dto.FeignResponseDTO;
 import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RequestContextDTO;
 import com.budget.common.utilities.LogUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -18,16 +17,10 @@ public class GlobalExceptionHandler {
     public GlobalExceptionHandler (LogUtil logger){
         this.logger =   logger;
     }
-    //Internal use
-    @ExceptionHandler(DuplicateKeyException.class)
-    public ResponseEntity<FeignResponseDTO> userTakenHandler (DuplicateKeyException e){
-        FeignResponseDTO res = new FeignResponseDTO(409, "User already exists", "Users");
-        return ResponseEntity.status(HttpStatus.OK).body(res);
-    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<FeignResponseDTO> unexpectedErrors (Exception e,
-                                                    HttpServletRequest request){
+                                                              HttpServletRequest request){
         RequestContextDTO contextDTO = contextHandler(request);
         contextDTO.setCategory(LogCategory.UNEXPECTED_ERROR);
         contextDTO.setDebug(e);
@@ -35,7 +28,7 @@ public class GlobalExceptionHandler {
         contextDTO.setMessage(e.getMessage());
         contextDTO.setOutcome("[FAILURE]");
         String uuid = logger.logRequest(contextDTO);
-        FeignResponseDTO res = new FeignResponseDTO(500, uuid, "Users");
+        FeignResponseDTO res = new FeignResponseDTO(500, uuid, "Auth");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(res);
     }
 
@@ -47,3 +40,4 @@ public class GlobalExceptionHandler {
                 request.getHeader("User-Agent"));
     }
 }
+

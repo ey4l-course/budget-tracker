@@ -1,4 +1,4 @@
-package com.budget.gateway.client;
+package com.budget.auth.client;
 
 import com.budget.common.dto.FeignResponseDTO;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-@FeignClient(name = "publicUser", url = "${routes.auth}")
-public interface PublicUserClient {
+@FeignClient(name = "registerClient", url = "${routs.public}")
+public interface RegisterClient {
     @RequestMapping(method = RequestMethod.POST, value = "/{path}", consumes = "application/json")
-    ResponseEntity<FeignResponseDTO> forward (@PathVariable("path") String path,
-                                              @RequestBody String body);
+    ResponseEntity<FeignResponseDTO> register (@PathVariable("path") String path,
+                                               @RequestBody String body);
 }
