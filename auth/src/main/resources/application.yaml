@@ -3,4 +3,11 @@ server:
 
 spring:
   config:
-    import: "file:${HOME}/projects/budget/config/${APP_ENV:dev}.yaml"
+    import: "classpath:/${APP_ENV:dev}.yaml"
+
+jwt:
+  secret: Temporary-key-for-dev-environment-only
+  access:
+    expiry: 300000 #5 minutes
+  refresh:
+    expiry: 3600000 #1 hour

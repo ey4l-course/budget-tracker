@@ -1,0 +1,116 @@
+diff --git a/auth/pom.xml b/auth/pom.xml
+index bdafd40..e24fa67 100644
+--- a/auth/pom.xml
++++ b/auth/pom.xml
+@@ -27,6 +27,20 @@
+             <groupId>org.springframework.security</groupId>
+             <artifactId>spring-security-config</artifactId>
+         </dependency>
++        <dependency>
++            <groupId>io.jsonwebtoken</groupId>
++            <artifactId>jjwt-api</artifactId>
++        </dependency>
++        <dependency>
++            <groupId>io.jsonwebtoken</groupId>
++            <artifactId>jjwt-impl</artifactId>
++            <scope>runtime</scope>
++        </dependency>
++        <dependency>
++            <groupId>io.jsonwebtoken</groupId>
++            <artifactId>jjwt-jackson</artifactId>
++            <scope>runtime</scope>
++        </dependency>
+     </dependencies>
+ 
+ 	<build>
+diff --git a/auth/src/main/java/com/budget/auth/AuthApplication.java b/auth/src/main/java/com/budget/auth/AuthApplication.java
+index 4438d25..a63b8df 100644
+--- a/auth/src/main/java/com/budget/auth/AuthApplication.java
++++ b/auth/src/main/java/com/budget/auth/AuthApplication.java
+@@ -2,8 +2,10 @@ package com.budget.auth;
+ 
+ import org.springframework.boot.SpringApplication;
+ import org.springframework.boot.autoconfigure.SpringBootApplication;
++import org.springframework.cloud.openfeign.EnableFeignClients;
+ 
+-@SpringBootApplication
++@SpringBootApplication(scanBasePackages = "com.budget")
++@EnableFeignClients(basePackages = "com.budget")
+ public class AuthApplication {
+ 
+ 	public static void main(String[] args) {
+diff --git a/auth/src/main/java/com/budget/auth/client/RegisterClient.java b/auth/src/main/java/com/budget/auth/client/RegisterClient.java
+index 8a7e6cb..b5baf7d 100644
+--- a/auth/src/main/java/com/budget/auth/client/RegisterClient.java
++++ b/auth/src/main/java/com/budget/auth/client/RegisterClient.java
+@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
+ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RequestMethod;
+ 
+-@FeignClient(name = "registerClient", url = "${routs.public}")
++@FeignClient(name = "registerClient", url = "${routes.public}")
+ public interface RegisterClient {
+     @RequestMapping(method = RequestMethod.POST, value = "/{path}", consumes = "application/json")
+     ResponseEntity<FeignResponseDTO> register (@PathVariable("path") String path,
+diff --git a/auth/src/main/resources/application.yaml b/auth/src/main/resources/application.yaml
+index aa70309..53816f1 100644
+--- a/auth/src/main/resources/application.yaml
++++ b/auth/src/main/resources/application.yaml
+@@ -3,4 +3,11 @@ server:
+ 
+ spring:
+   config:
+-    import: "file:${HOME}/projects/budget/config/${APP_ENV:dev}.yaml"
+\ No newline at end of file
++    import: "classpath:/${APP_ENV:dev}.yaml"
++
++jwt:
++  secret: Temporary-key-for-dev-environment-only
++  access:
++    expiry: 300000 #5 minutes
++  refresh:
++    expiry: 3600000 #1 hour
+\ No newline at end of file
+diff --git a/pom.xml b/pom.xml
+index f9b8f58..dfbb582 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -49,6 +49,23 @@
+                 <artifactId>logstash-logback-encoder</artifactId>
+                 <version>7.4</version>
+             </dependency>
++            <dependency>
++                <groupId>io.jsonwebtoken</groupId>
++                <artifactId>jjwt-api</artifactId>
++                <version>0.12.6</version>
++            </dependency>
++            <dependency>
++                <groupId>io.jsonwebtoken</groupId>
++                <artifactId>jjwt-impl</artifactId>
++                <version>0.12.6</version>
++                <scope>runtime</scope>
++            </dependency>
++            <dependency>
++                <groupId>io.jsonwebtoken</groupId>
++                <artifactId>jjwt-jackson</artifactId>
++                <version>0.12.6</version>
++                <scope>runtime</scope>
++            </dependency>
+         </dependencies>
+     </dependencyManagement>
+     <dependencies>
+diff --git a/users/src/main/java/com/budget/users/UsersApplication.java b/users/src/main/java/com/budget/users/UsersApplication.java
+index 61a955e..382d22a 100644
+--- a/users/src/main/java/com/budget/users/UsersApplication.java
++++ b/users/src/main/java/com/budget/users/UsersApplication.java
+@@ -2,8 +2,10 @@ package com.budget.users;
+ 
+ import org.springframework.boot.SpringApplication;
+ import org.springframework.boot.autoconfigure.SpringBootApplication;
++import org.springframework.cloud.openfeign.EnableFeignClients;
+ 
+ @SpringBootApplication(scanBasePackages = "com.budget")
++@EnableFeignClients(basePackages = "com.budget")
+ public class UsersApplication {
+ 
+ 	public static void main(String[] args) {
