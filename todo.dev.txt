@@ -1,0 +1,20 @@
+Revised Checklist
+Auth Module
+
+    [x] JwtUtil: Sign with secret, set expiration, and include userId/roles as claims.
+
+    [x] CookieUtil: Build the HttpOnly, Secure, and SameSite header string.
+
+    [ ] Login Service: Coordinate the Feign call to Users and the BCrypt check.
+
+Users Module
+
+    [ ] Internal User Fetch: A GET endpoint that returns the full user profile (including hash) to the Auth service.
+
+Gateway
+
+    [ ] Login Controller: Receive credentials, call Auth, and copy headers from the Feign response to the HttpServletResponse.
+
+UI (React)
+
+    [ ] Login Handler: Handle the 200 OK, and perhaps a redirect to the dashboard. Since it's an HttpOnly cookie, the UI doesn't need to store the token; the browser handles it automatically.

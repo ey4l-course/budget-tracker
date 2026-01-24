@@ -1,6 +1,7 @@
 package com.budget.users.controller;
 
 import com.budget.common.dto.FeignResponseDTO;
+import com.budget.common.dto.InternalFeignDTO;
 import com.budget.common.dto.RegisterDto;
 import com.budget.users.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -28,5 +29,11 @@ public class PublicUserController {
     public ResponseEntity<FeignResponseDTO> register (@RequestBody RegisterDto user){
         service.register(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(new FeignResponseDTO(201, "successfully created", "Users"));
+    }
+
+    @GetMapping("/login")
+    public  ResponseEntity<InternalFeignDTO> login (@PathVariable("username") String username){
+        InternalFeignDTO dto = service.login(username);
+        return ResponseEntity.ok().body(dto);
     }
 }

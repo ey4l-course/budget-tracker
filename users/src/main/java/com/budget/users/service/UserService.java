@@ -1,5 +1,6 @@
 package com.budget.users.service;
 
+import com.budget.common.dto.InternalFeignDTO;
 import com.budget.common.dto.RegisterDto;
 import com.budget.users.client.AuthClient;
 import com.budget.users.repository.UserRepository;
@@ -25,5 +26,9 @@ public class UserService {
 
     public void register(RegisterDto user) {
         repo.register(user);
+    }
+
+    public InternalFeignDTO login(String username) {
+        return repo.login(username);
     }
 }

@@ -11,6 +11,7 @@ CREATE TABLE users_table (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
+    is_admin BOOLEAN DEFAULT false,
     given_name VARCHAR(50),
     surname VARCHAR(50),
     mobile VARCHAR(15),

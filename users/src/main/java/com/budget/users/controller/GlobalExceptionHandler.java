@@ -1,15 +1,19 @@
 package com.budget.users.controller;
 
 import com.budget.common.dto.FeignResponseDTO;
+import com.budget.common.dto.InternalFeignDTO;
 import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RequestContextDTO;
 import com.budget.common.utilities.LogUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.sql.SQLException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -23,6 +27,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<FeignResponseDTO> userTakenHandler (DuplicateKeyException e){
         FeignResponseDTO res = new FeignResponseDTO(409, "User already exists", "Users");
         return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @ExceptionHandler (DataAccessException.class)
+    public ResponseEntity<InternalFeignDTO> userNotFoundHandler (DataAccessException e){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new InternalFeignDTO("User not found", false));
     }
 
     @ExceptionHandler(Exception.class)

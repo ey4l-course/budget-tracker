@@ -1,6 +1,9 @@
 package com.budget.users.repository;
 
+import com.budget.common.dto.InternalFeignDTO;
 import com.budget.common.dto.RegisterDto;
+import com.budget.users.repository.mapper.LoginMapper;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -44,5 +47,10 @@ public class UserRepository {
             return ps;
         }, key);
         return key.getKeyAs(Integer.class);
+    }
+
+    public InternalFeignDTO login(String username) {
+            String sql = String.format("SELECT password, is_admin FROM %s WHERE username = ?", USERS);
+            return jdbc.queryForObject(sql, new LoginMapper(), username);
     }
 }
