@@ -3,7 +3,7 @@ package com.budget.gateway.service;
 import com.budget.common.dto.FeignResponseDTO;
 import com.budget.common.dto.RegisterDto;
 import com.budget.gateway.client.PublicUserClient;
-import com.budget.gateway.dto.LoginDto;
+import com.budget.common.dto.LoginDto;
 import com.budget.gateway.util.ValidatorsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

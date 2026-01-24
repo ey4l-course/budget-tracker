@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginDto {
-    private String username;
-    private String password;
-    private String access;
-    private String refresh;
+public class InternalFeignDTO {
+    private String msg;
+    private boolean admin;
 }

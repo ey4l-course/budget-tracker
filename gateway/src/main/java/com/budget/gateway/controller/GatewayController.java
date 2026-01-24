@@ -3,7 +3,7 @@ package com.budget.gateway.controller;
 import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RegisterDto;
 import com.budget.common.dto.RequestContextDTO;
-import com.budget.gateway.dto.LoginDto;
+import com.budget.common.dto.LoginDto;
 import com.budget.gateway.dto.ValidationDTO;
 import com.budget.gateway.service.GatewayPublicService;
 import jakarta.servlet.http.HttpServletRequest;

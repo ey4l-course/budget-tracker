@@ -1,14 +1,18 @@
 package com.budget.auth.controller;
 
+import com.budget.auth.util.CustomAccessDeniedException;
 import com.budget.common.dto.FeignResponseDTO;
 import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RequestContextDTO;
 import com.budget.common.utilities.LogUtil;
+import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.net.URI;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -16,6 +20,17 @@ public class GlobalExceptionHandler {
 
     public GlobalExceptionHandler (LogUtil logger){
         this.logger =   logger;
+    }
+    @ExceptionHandler(CustomAccessDeniedException.class)
+    public ResponseEntity<FeignResponseDTO> CustomHandler (CustomAccessDeniedException e) throws IllegalAccessException{
+        String uuid = logger.securityLog(e.getPayload());
+        return ResponseEntity.badRequest().body(new FeignResponseDTO(401, uuid, "Auth"));
+    }
+
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<FeignResponseDTO> feignExceptionHandler (FeignException e){
+        String url = e.request().url();
+        return ResponseEntity.internalServerError().body(new FeignResponseDTO(500, e.getMessage(), URI.create(url).getHost()));
     }
 
     @ExceptionHandler(Exception.class)
