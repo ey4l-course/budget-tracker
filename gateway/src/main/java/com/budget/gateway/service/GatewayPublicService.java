@@ -36,23 +36,10 @@ public class GatewayPublicService {
     }
 
     public HttpStatusCode register(RegisterDto user) {
-        try {
-            validators.validateRegistrationData(user);
-            ResponseEntity<FeignResponseDTO> result = publicUserClient.forward("register", stringify(user));
-            FeignResponseDTO res = result.getBody();
-            if (res.getStatus() == 201){
-                cacheService.confirmRegistration(user.getUsername());
-                return HttpStatus.CREATED;
-            }
-            if (res.getStatus() == 409) {
-                cacheService.updateCache(user.getUsername());
-                throw new IllegalArgumentException(String.format("Username %s already taken", user.getUsername()));
-            }else {
-                throw new RuntimeException(stringify(res));
-            }
-        }catch (FeignException e){
-            throw new RuntimeException(e);
-        }
+        validators.validateRegistrationData(user);
+        ResponseEntity<FeignResponseDTO> result = publicUserClient.forward("register", stringify(user));
+        cacheService.confirmRegistration(user.getUsername());
+        return result.getStatusCode();
     }
 
     public HttpStatusCode login(LoginDto login) {

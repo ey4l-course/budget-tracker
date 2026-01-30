@@ -5,6 +5,8 @@ import com.budget.common.dto.FeignResponseDTO;
 import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RequestContextDTO;
 import com.budget.common.utilities.LogUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -17,20 +19,23 @@ import java.net.URI;
 @ControllerAdvice
 public class GlobalExceptionHandler {
     private final LogUtil logger;
+    private final ObjectMapper mapper;
 
-    public GlobalExceptionHandler (LogUtil logger){
-        this.logger =   logger;
+    public GlobalExceptionHandler (LogUtil logger,
+                                   ObjectMapper mapper){
+        this.logger = logger;
+        this.mapper = mapper;
     }
+
     @ExceptionHandler(CustomAccessDeniedException.class)
     public ResponseEntity<FeignResponseDTO> CustomHandler (CustomAccessDeniedException e) throws IllegalAccessException{
         String uuid = logger.securityLog(e.getPayload());
-        return ResponseEntity.badRequest().body(new FeignResponseDTO(401, uuid, "Auth"));
+        return ResponseEntity.badRequest().body(new FeignResponseDTO(uuid, "Auth"));
     }
 
     @ExceptionHandler(FeignException.class)
-    public ResponseEntity<FeignResponseDTO> feignExceptionHandler (FeignException e){
-        String url = e.request().url();
-        return ResponseEntity.internalServerError().body(new FeignResponseDTO(500, e.getMessage(), URI.create(url).getHost()));
+    public ResponseEntity<String> unexpectedDownstreamException (FeignException e){
+        return ResponseEntity.status(e.status()).body(e.contentUTF8());
     }
 
     @ExceptionHandler(Exception.class)
@@ -43,7 +48,7 @@ public class GlobalExceptionHandler {
         contextDTO.setMessage(e.getMessage());
         contextDTO.setOutcome("[FAILURE]");
         String uuid = logger.logRequest(contextDTO);
-        FeignResponseDTO res = new FeignResponseDTO(500, uuid, "Auth");
+        FeignResponseDTO res = new FeignResponseDTO(uuid, "Auth");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(res);
     }
 

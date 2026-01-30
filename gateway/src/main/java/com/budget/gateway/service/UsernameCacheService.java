@@ -57,7 +57,7 @@ public class UsernameCacheService {
         return takenUsernames.contains(username);
     }
 
-    protected void confirmRegistration (String username){
+    public void confirmRegistration (String username){
         takenUsernames.add(username);
         lockedUserNames.remove(username);
     }

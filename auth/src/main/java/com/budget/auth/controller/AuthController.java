@@ -19,7 +19,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register (@RequestBody RegisterDto user){
+    public ResponseEntity<FeignResponseDTO> register (@RequestBody RegisterDto user){
         FeignResponseDTO res = identityService.register(user);
         return ResponseEntity.ok().body(res);
     }

@@ -36,6 +36,8 @@ public class LogUtil {
             fullErrorLogger.error("FULL STACK-TRACE [log ID: {}]", uuid, request.getDebug());
         } else if (LogCategory.USER_ERROR.equals(request.getCategory())) {
             uuid = uuidGenerator.generate().toString();
+        } else if (LogCategory.INTERNAL.equals(request.getCategory())) {
+            uuid = request.getUuid();
         }
         Map<String, Object> logPayload = new HashMap<>();
         if (uuid != null)
@@ -54,9 +56,17 @@ public class LogUtil {
             logPayload.put("endProcess", ISO_FORMAT.format(request.getEndProcess()));
         if (request.getDebug() != null)
             logPayload.put("debug",  parser.ExceptionParser(request.getDebug()));
+        if (request.getSource() != null)
+            logPayload.put("sourceService", request.getSource());
         if (!"GET".equals(request.getMethod()))
             logPayload.put("payload", request.getPayload());
         logger.info("request-log", StructuredArguments.entries(logPayload));
+        return uuid;
+    }
+
+    public String internalErrorLog(Exception e){
+        String uuid = uuidGenerator.generate().toString();
+        fullErrorLogger.error("FULL STACK-TRACE [log ID: {}]", uuid, e);
         return uuid;
     }
 

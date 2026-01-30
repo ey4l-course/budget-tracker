@@ -47,7 +47,7 @@ public class GatewayController {
         RequestContextDTO contextDTO = contextHandler(request);
         contextDTO.setUserName(login.getUsername());
         if (service.login(login).isSameCodeAs(HttpStatus.OK))
-            markSuccess(contextDTO, HttpStatus.OK, null);
+            markSuccess(contextDTO, HttpStatus.OK, "Login successful");
     }
     //Helper
     private RequestContextDTO contextHandler (HttpServletRequest request){

@@ -28,7 +28,7 @@ public class PublicUserController {
     @PostMapping("/register")
     public ResponseEntity<FeignResponseDTO> register (@RequestBody RegisterDto user){
         service.register(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new FeignResponseDTO(201, "successfully created", "Users"));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new FeignResponseDTO("successfully created", "Users"));
     }
 
     @GetMapping("/login")

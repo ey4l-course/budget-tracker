@@ -25,8 +25,8 @@ public class GlobalExceptionHandler {
     //Internal use
     @ExceptionHandler(DuplicateKeyException.class)
     public ResponseEntity<FeignResponseDTO> userTakenHandler (DuplicateKeyException e){
-        FeignResponseDTO res = new FeignResponseDTO(409, "User already exists", "Users");
-        return ResponseEntity.status(HttpStatus.OK).body(res);
+        FeignResponseDTO res = new FeignResponseDTO("User already exists", "Users");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
     }
 
     @ExceptionHandler (DataAccessException.class)
@@ -35,16 +35,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<FeignResponseDTO> unexpectedErrors (Exception e,
-                                                    HttpServletRequest request){
-        RequestContextDTO contextDTO = contextHandler(request);
-        contextDTO.setCategory(LogCategory.UNEXPECTED_ERROR);
-        contextDTO.setDebug(e);
-        contextDTO.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-        contextDTO.setMessage(e.getMessage());
-        contextDTO.setOutcome("[FAILURE]");
-        String uuid = logger.logRequest(contextDTO);
-        FeignResponseDTO res = new FeignResponseDTO(500, uuid, "Users");
+    public ResponseEntity<FeignResponseDTO> unexpectedErrors (Exception e){
+        String uuid = logger.internalErrorLog(e);
+        FeignResponseDTO res = new FeignResponseDTO(uuid, "Users");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(res);
     }
 
