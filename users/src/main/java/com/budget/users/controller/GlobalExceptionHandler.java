@@ -22,18 +22,20 @@ public class GlobalExceptionHandler {
     public GlobalExceptionHandler (LogUtil logger){
         this.logger =   logger;
     }
-    //Internal use
+    //User already exists (register)
     @ExceptionHandler(DuplicateKeyException.class)
     public ResponseEntity<FeignResponseDTO> userTakenHandler (DuplicateKeyException e){
         FeignResponseDTO res = new FeignResponseDTO("User already exists", "Users");
         return ResponseEntity.status(HttpStatus.CONFLICT).body(res);
     }
 
+    //User not found (login)
     @ExceptionHandler (DataAccessException.class)
     public ResponseEntity<InternalFeignDTO> userNotFoundHandler (DataAccessException e){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new InternalFeignDTO("User not found", false));
     }
 
+     //Unpredicted exception. Logs full trace and sends uuid upstream
     @ExceptionHandler(Exception.class)
     public ResponseEntity<FeignResponseDTO> unexpectedErrors (Exception e){
         String uuid = logger.internalErrorLog(e);
@@ -48,4 +50,5 @@ public class GlobalExceptionHandler {
                 request.getMethod(),
                 request.getHeader("User-Agent"));
     }
+
 }

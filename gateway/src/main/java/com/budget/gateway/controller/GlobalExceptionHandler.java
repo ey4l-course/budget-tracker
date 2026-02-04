@@ -50,11 +50,34 @@ public class GlobalExceptionHandler {
         throw new IllegalArgumentException(String.format("Username %s already taken", contextDTO.getUserName()));
     }
 
+    @ExceptionHandler(FeignException.ServiceUnavailable.class)
+    public void networkErrorHandler (FeignException.ServiceUnavailable e,
+                                     HttpServletRequest request){
+        RequestContextDTO contextDTO = contextHandler(request);
+        String body = e.contentUTF8();
+        unexpectedHandler(e, contextDTO, body);
+    }
+
     @ExceptionHandler(FeignException.InternalServerError.class)
     public void unexpectedDownstreamException (FeignException.InternalServerError e,
                                                HttpServletRequest request){
         RequestContextDTO contextDTO = contextHandler(request);
         String body = e.contentUTF8();
+        unexpectedHandler(e, contextDTO, body);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public void unexpectedErrors (Exception e,
+                                  HttpServletRequest request){
+        RequestContextDTO contextDTO = contextHandler(request);
+        contextDTO.setCategory(LogCategory.UNEXPECTED_ERROR);
+        contextDTO.setDebug(e);
+        contextDTO.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+        contextDTO.setMessage("Internal server error");
+        contextDTO.setOutcome("[FAILURE]");
+    }
+
+    private void unexpectedHandler (Exception e, RequestContextDTO contextDTO, String body){
         try {
             FeignResponseDTO res = mapper.readValue(body, FeignResponseDTO.class);
             contextDTO.setUuid(res.getMsg());
@@ -64,17 +87,6 @@ public class GlobalExceptionHandler {
             contextDTO.setUuid("499c5ed3b3ec57542b67466ba3e44c06");
         }
         contextDTO.setCategory(LogCategory.INTERNAL);
-        contextDTO.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-        contextDTO.setMessage("Internal server error");
-        contextDTO.setOutcome("[FAILURE]");
-    }
-
-    @ExceptionHandler(Exception.class)
-    public void unexpectedErrors (Exception e,
-                                  HttpServletRequest request){
-        RequestContextDTO contextDTO = contextHandler(request);
-        contextDTO.setCategory(LogCategory.UNEXPECTED_ERROR);
-        contextDTO.setDebug(e);
         contextDTO.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
         contextDTO.setMessage("Internal server error");
         contextDTO.setOutcome("[FAILURE]");

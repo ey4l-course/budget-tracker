@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class UserRepository {
@@ -49,7 +50,7 @@ public class UserRepository {
         return key.getKeyAs(Integer.class);
     }
 
-    public InternalFeignDTO login(String username) {
+    public Optional<InternalFeignDTO> login(String username) {
             String sql = String.format("SELECT password, is_admin FROM %s WHERE username = ?", USERS);
             return jdbc.queryForObject(sql, new LoginMapper(), username);
     }

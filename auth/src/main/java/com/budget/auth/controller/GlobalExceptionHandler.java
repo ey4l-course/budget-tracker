@@ -4,6 +4,7 @@ import com.budget.auth.util.CustomAccessDeniedException;
 import com.budget.common.dto.FeignResponseDTO;
 import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RequestContextDTO;
+import com.budget.common.dto.SecurityLogDto;
 import com.budget.common.utilities.LogUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,6 +27,11 @@ public class GlobalExceptionHandler {
         this.logger = logger;
         this.mapper = mapper;
     }
+    //Propagate to GW
+    @ExceptionHandler(FeignException.Conflict.class)
+    public ResponseEntity<String> userExistsHandler (FeignException.Conflict e){
+        return ResponseEntity.status(409).body(e.contentUTF8());
+    }
 
     @ExceptionHandler(CustomAccessDeniedException.class)
     public ResponseEntity<FeignResponseDTO> CustomHandler (CustomAccessDeniedException e) throws IllegalAccessException{
@@ -33,8 +39,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(new FeignResponseDTO(uuid, "Auth"));
     }
 
+    @ExceptionHandler(FeignException.Unauthorized.class)
+    public  ResponseEntity<FeignResponseDTO> userNotFoundHandler (FeignException.Unauthorized e){
+        SecurityLogDto dto = new SecurityLogDto()
+        String uuid = logger.securityLog(e.getPayload());
+    }
+
+    //Propagate to GW
     @ExceptionHandler(FeignException.class)
-    public ResponseEntity<String> unexpectedDownstreamException (FeignException e){
+    public ResponseEntity<?> unexpectedDownstreamException (FeignException e){
+        if (e.status() == 0){
+            String uuid = logger.internalErrorLog(e);
+            return ResponseEntity.status(503).body(new FeignResponseDTO(uuid, "Auth"));
+        }
         return ResponseEntity.status(e.status()).body(e.contentUTF8());
     }
 
