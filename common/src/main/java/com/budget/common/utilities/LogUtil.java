@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -70,15 +71,14 @@ public class LogUtil {
         return uuid;
     }
 
-    public String securityLog(SecurityLogDto sec) throws IllegalAccessException{
+    public String securityLog(SecurityLogDto sec){
         String uuid = uuidGenerator.generate().toString();
         Map<String, Object> logPayload = new HashMap<>();
         logPayload.put("uuid", uuid);
-        Field[] fields = sec.getClass().getDeclaredFields();
-        for (Field field : fields){
-            field.setAccessible(true);
-            logPayload.put(field.getName(), field.get(sec));
-        }
+        logPayload.put("username", sec.getUsername());
+        logPayload.put("fingerPrint", sec.getFingerPrint());
+        logPayload.put("message", sec.getMessage());
+        logPayload.put("timeStamp", ISO_FORMAT.format(Instant.now()));
         logger.info("security-log", StructuredArguments.entries(logPayload));
         return uuid;
     }

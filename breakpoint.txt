@@ -1,0 +1,420 @@
+diff --git a/auth/src/main/java/com/budget/auth/client/LoginClient.java b/auth/src/main/java/com/budget/auth/client/LoginClient.java
+index 74b590b..659041c 100644
+--- a/auth/src/main/java/com/budget/auth/client/LoginClient.java
++++ b/auth/src/main/java/com/budget/auth/client/LoginClient.java
+@@ -1,6 +1,7 @@
+ package com.budget.auth.client;
+ 
+ import com.budget.common.dto.InternalFeignDTO;
++import jakarta.servlet.http.HttpServletRequest;
+ import org.springframework.cloud.openfeign.FeignClient;
+ import org.springframework.http.ResponseEntity;
+ import org.springframework.web.bind.annotation.PathVariable;
+@@ -10,5 +11,5 @@ import org.springframework.web.bind.annotation.RequestMethod;
+ @FeignClient (name = "loginClient", url = "${routes.public}")
+ public interface LoginClient {
+     @RequestMapping(method = RequestMethod.GET, value = "/login/{username}")
+-    ResponseEntity<InternalFeignDTO> login(@PathVariable("username") String username);
++    ResponseEntity<InternalFeignDTO> login(@PathVariable String username);
+ }
+diff --git a/auth/src/main/java/com/budget/auth/client/RegisterClient.java b/auth/src/main/java/com/budget/auth/client/RegisterClient.java
+index b5baf7d..b23bb68 100644
+--- a/auth/src/main/java/com/budget/auth/client/RegisterClient.java
++++ b/auth/src/main/java/com/budget/auth/client/RegisterClient.java
+@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
+ @FeignClient(name = "registerClient", url = "${routes.public}")
+ public interface RegisterClient {
+     @RequestMapping(method = RequestMethod.POST, value = "/{path}", consumes = "application/json")
+-    ResponseEntity<FeignResponseDTO> register (@PathVariable("path") String path,
++    ResponseEntity<FeignResponseDTO> register (@PathVariable String path,
+                                                @RequestBody String body);
+ }
+diff --git a/auth/src/main/java/com/budget/auth/config/SecurityConfig.java b/auth/src/main/java/com/budget/auth/config/SecurityConfig.java
+index cb2ef18..1e8ccf2 100644
+--- a/auth/src/main/java/com/budget/auth/config/SecurityConfig.java
++++ b/auth/src/main/java/com/budget/auth/config/SecurityConfig.java
+@@ -6,6 +6,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+ import org.springframework.security.web.SecurityFilterChain;
+ 
++import java.security.MessageDigest;
++import java.security.NoSuchAlgorithmException;
++
+ @Configuration
+ public class SecurityConfig {
+     @Bean
+@@ -21,4 +24,14 @@ public class SecurityConfig {
+     public BCryptPasswordEncoder encoder () {
+         return new BCryptPasswordEncoder();
+     }
++
++    @Bean
++    public MessageDigest sha256 () {
++        try {
++            return MessageDigest.getInstance("SHA-256");
++        }catch (NoSuchAlgorithmException e){
++            //Email notify NOC
++            throw new RuntimeException("Critical error: SHA-256 alg not found");
++        }
++    }
+ }
+diff --git a/auth/src/main/java/com/budget/auth/controller/AuthController.java b/auth/src/main/java/com/budget/auth/controller/AuthController.java
+index 9ab3b45..4e867b5 100644
+--- a/auth/src/main/java/com/budget/auth/controller/AuthController.java
++++ b/auth/src/main/java/com/budget/auth/controller/AuthController.java
+@@ -1,12 +1,12 @@
+ package com.budget.auth.controller;
+ 
+ import com.budget.auth.service.IdentityService;
+-import com.budget.auth.util.CookieUtil;
+ import com.budget.common.dto.FeignResponseDTO;
++import com.budget.common.dto.InternalFeignDTO;
+ import com.budget.common.dto.LoginDto;
+ import com.budget.common.dto.RegisterDto;
++import jakarta.servlet.http.HttpServletRequest;
+ import org.springframework.http.HttpHeaders;
+-import org.springframework.http.HttpStatus;
+ import org.springframework.http.ResponseEntity;
+ import org.springframework.web.bind.annotation.*;
+ 
+@@ -25,8 +25,9 @@ public class AuthController {
+     }
+ 
+     @PostMapping("/login")
+-    public ResponseEntity<?> login (@RequestBody LoginDto credentials){
+-        FeignResponseDTO res = identityService.login(credentials);
++    public ResponseEntity<?> login (@RequestBody LoginDto credentials,
++                                    HttpServletRequest request){
++        InternalFeignDTO res = identityService.login(credentials, request);
+         return ResponseEntity.ok()
+                 .header(HttpHeaders.SET_COOKIE, credentials.getAccess())
+                 .header(HttpHeaders.SET_COOKIE, credentials.getRefresh())
+diff --git a/auth/src/main/java/com/budget/auth/controller/GlobalExceptionHandler.java b/auth/src/main/java/com/budget/auth/controller/GlobalExceptionHandler.java
+index 3999f23..2a356ca 100644
+--- a/auth/src/main/java/com/budget/auth/controller/GlobalExceptionHandler.java
++++ b/auth/src/main/java/com/budget/auth/controller/GlobalExceptionHandler.java
+@@ -1,13 +1,10 @@
+ package com.budget.auth.controller;
+ 
+-import com.budget.auth.util.CustomAccessDeniedException;
+ import com.budget.common.dto.FeignResponseDTO;
+ import com.budget.common.dto.LogCategory;
+ import com.budget.common.dto.RequestContextDTO;
+ import com.budget.common.dto.SecurityLogDto;
+ import com.budget.common.utilities.LogUtil;
+-import com.fasterxml.jackson.core.JsonProcessingException;
+-import com.fasterxml.jackson.databind.ObjectMapper;
+ import feign.FeignException;
+ import jakarta.servlet.http.HttpServletRequest;
+ import org.springframework.http.HttpStatus;
+@@ -15,17 +12,12 @@ import org.springframework.http.ResponseEntity;
+ import org.springframework.web.bind.annotation.ControllerAdvice;
+ import org.springframework.web.bind.annotation.ExceptionHandler;
+ 
+-import java.net.URI;
+-
+ @ControllerAdvice
+ public class GlobalExceptionHandler {
+     private final LogUtil logger;
+-    private final ObjectMapper mapper;
+ 
+-    public GlobalExceptionHandler (LogUtil logger,
+-                                   ObjectMapper mapper){
++    public GlobalExceptionHandler (LogUtil logger){
+         this.logger = logger;
+-        this.mapper = mapper;
+     }
+     //Propagate to GW
+     @ExceptionHandler(FeignException.Conflict.class)
+@@ -33,16 +25,12 @@ public class GlobalExceptionHandler {
+         return ResponseEntity.status(409).body(e.contentUTF8());
+     }
+ 
+-    @ExceptionHandler(CustomAccessDeniedException.class)
+-    public ResponseEntity<FeignResponseDTO> CustomHandler (CustomAccessDeniedException e) throws IllegalAccessException{
+-        String uuid = logger.securityLog(e.getPayload());
+-        return ResponseEntity.badRequest().body(new FeignResponseDTO(uuid, "Auth"));
+-    }
+-
+     @ExceptionHandler(FeignException.Unauthorized.class)
+-    public  ResponseEntity<FeignResponseDTO> userNotFoundHandler (FeignException.Unauthorized e){
+-        SecurityLogDto dto = new SecurityLogDto()
+-        String uuid = logger.securityLog(e.getPayload());
++    public  ResponseEntity<FeignResponseDTO> userNotFoundHandler (FeignException.Unauthorized e,
++                                                                  HttpServletRequest request){
++        SecurityLogDto dto = (SecurityLogDto) request.getAttribute("securityLog");
++        String uuid = logger.securityLog(dto);
++        return ResponseEntity.status(e.status()).body(new FeignResponseDTO(uuid,"Users"));
+     }
+ 
+     //Propagate to GW
+@@ -55,26 +43,12 @@ public class GlobalExceptionHandler {
+         return ResponseEntity.status(e.status()).body(e.contentUTF8());
+     }
+ 
++    //Unpredicted exception. Logs full trace and sends uuid upstream
+     @ExceptionHandler(Exception.class)
+-    public ResponseEntity<FeignResponseDTO> unexpectedErrors (Exception e,
+-                                                              HttpServletRequest request){
+-        RequestContextDTO contextDTO = contextHandler(request);
+-        contextDTO.setCategory(LogCategory.UNEXPECTED_ERROR);
+-        contextDTO.setDebug(e);
+-        contextDTO.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+-        contextDTO.setMessage(e.getMessage());
+-        contextDTO.setOutcome("[FAILURE]");
+-        String uuid = logger.logRequest(contextDTO);
++    public ResponseEntity<FeignResponseDTO> unexpectedErrors (Exception e){
++        String uuid = logger.internalErrorLog(e);
+         FeignResponseDTO res = new FeignResponseDTO(uuid, "Auth");
+         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(res);
+     }
+-
+-    private RequestContextDTO contextHandler (HttpServletRequest request){
+-        RequestContextDTO ctx = (RequestContextDTO) request.getAttribute("context");
+-        return ctx != null ? ctx
+-                : new RequestContextDTO(request.getRequestURI(),
+-                request.getMethod(),
+-                request.getHeader("User-Agent"));
+-    }
+ }
+ 
+diff --git a/auth/src/main/java/com/budget/auth/service/IdentityService.java b/auth/src/main/java/com/budget/auth/service/IdentityService.java
+index 592fd00..2a8c0a3 100644
+--- a/auth/src/main/java/com/budget/auth/service/IdentityService.java
++++ b/auth/src/main/java/com/budget/auth/service/IdentityService.java
+@@ -7,10 +7,17 @@ import com.budget.auth.util.JwtUtil;
+ import com.budget.common.dto.*;
+ import com.fasterxml.jackson.core.JsonProcessingException;
+ import com.fasterxml.jackson.databind.ObjectMapper;
++import jakarta.servlet.http.HttpServletRequest;
++import org.springframework.beans.factory.annotation.Value;
+ import org.springframework.http.ResponseEntity;
+ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+ import org.springframework.stereotype.Service;
+ 
++import java.nio.charset.StandardCharsets;
++import java.security.MessageDigest;
++import java.security.NoSuchAlgorithmException;
++import java.util.HexFormat;
++
+ @Service
+ public class IdentityService {
+     private final ObjectMapper mapper;
+@@ -18,17 +25,22 @@ public class IdentityService {
+     private final RegisterClient registerClient;
+     private final LoginClient loginClient;
+     private final JwtUtil jwt;
++    private final MessageDigest sha256;
++    @Value("${security.fingerprint}")
++    private String hashKey;
+ 
+     public IdentityService (ObjectMapper mapper,
+                             BCryptPasswordEncoder encoder,
+                             RegisterClient registerClient,
+                             LoginClient loginClient,
+-                            JwtUtil jwt){
++                            JwtUtil jwt,
++                            MessageDigest sha256){
+         this.mapper = mapper;
+         this.encoder = encoder;
+         this.registerClient = registerClient;
+         this.loginClient = loginClient;
+         this.jwt = jwt;
++        this.sha256 = sha256;
+     }
+ 
+     public FeignResponseDTO register (RegisterDto user){
+@@ -38,22 +50,23 @@ public class IdentityService {
+             return res.getBody();
+     }
+ 
+-    public FeignResponseDTO login(LoginDto credentials) {
+-            ResponseEntity<InternalFeignDTO> res = loginClient.login(credentials.getUsername());
+-            InternalFeignDTO dto = res.getBody();
+-            if (res.getStatusCode().is4xxClientError())
+-                throw new CustomAccessDeniedException(new SecurityLogDto(credentials.getUsername(), null, dto.getMsg()));
+-            if (res.getStatusCode().is2xxSuccessful()) {
+-                authHandler(dto, credentials);
+-                return new FeignResponseDTO(200, "Login successful", "Auth", dto.isAdmin());
+-            }
+-            return new FeignResponseDTO(500, res.getBody().getMsg(), "Users");
++    public InternalFeignDTO login(LoginDto credentials,
++                                  HttpServletRequest request) {
++        SecurityLogDto log = new SecurityLogDto(credentials.getUsername(), passwordFP(credentials.getPassword()), null);
++        request.setAttribute("securityLog", log);
++        ResponseEntity<InternalFeignDTO> res = loginClient.login(credentials.getUsername());
++        return res.getBody();
+     }
+ 
+     private String stringEncoder (String raw){
+         return encoder.encode(raw);
+     }
+ 
++    private String passwordFP (String rawPassword){
++        byte[] hash = sha256.digest((rawPassword + hashKey).getBytes(StandardCharsets.UTF_8));
++        return HexFormat.of().formatHex(hash);
++    }
++
+     private String stringify (Object obj){
+         try {
+             return mapper.writeValueAsString(obj);
+diff --git a/auth/src/main/resources/application.yaml b/auth/src/main/resources/application.yaml
+index 53816f1..256a302 100644
+--- a/auth/src/main/resources/application.yaml
++++ b/auth/src/main/resources/application.yaml
+@@ -5,6 +5,9 @@ spring:
+   config:
+     import: "classpath:/${APP_ENV:dev}.yaml"
+ 
++security:
++  fingerprint: Temporary-key-for-dev-environment-only
++
+ jwt:
+   secret: Temporary-key-for-dev-environment-only
+   access:
+diff --git a/common/src/main/java/com/budget/common/dto/SecurityLogDto.java b/common/src/main/java/com/budget/common/dto/SecurityLogDto.java
+index b1af9ef..41276ad 100644
+--- a/common/src/main/java/com/budget/common/dto/SecurityLogDto.java
++++ b/common/src/main/java/com/budget/common/dto/SecurityLogDto.java
+@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
+ @NoArgsConstructor
+ public class SecurityLogDto {
+     private String username;
+-    private String password;
++    private String fingerPrint;
+     private String message;
+ }
+diff --git a/common/src/main/java/com/budget/common/utilities/LogUtil.java b/common/src/main/java/com/budget/common/utilities/LogUtil.java
+index 224d8fb..e40244d 100644
+--- a/common/src/main/java/com/budget/common/utilities/LogUtil.java
++++ b/common/src/main/java/com/budget/common/utilities/LogUtil.java
+@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
+ import org.springframework.stereotype.Component;
+ 
+ import java.lang.reflect.Field;
++import java.time.Instant;
+ import java.time.ZoneOffset;
+ import java.time.format.DateTimeFormatter;
+ import java.util.HashMap;
+@@ -70,15 +71,14 @@ public class LogUtil {
+         return uuid;
+     }
+ 
+-    public String securityLog(SecurityLogDto sec) throws IllegalAccessException{
++    public String securityLog(SecurityLogDto sec){
+         String uuid = uuidGenerator.generate().toString();
+         Map<String, Object> logPayload = new HashMap<>();
+         logPayload.put("uuid", uuid);
+-        Field[] fields = sec.getClass().getDeclaredFields();
+-        for (Field field : fields){
+-            field.setAccessible(true);
+-            logPayload.put(field.getName(), field.get(sec));
+-        }
++        logPayload.put("username", sec.getUsername());
++        logPayload.put("fingerPrint", sec.getFingerPrint());
++        logPayload.put("message", sec.getMessage());
++        logPayload.put("timeStamp", ISO_FORMAT.format(Instant.now()));
+         logger.info("security-log", StructuredArguments.entries(logPayload));
+         return uuid;
+     }
+diff --git a/gateway/src/main/java/com/budget/gateway/controller/GlobalExceptionHandler.java b/gateway/src/main/java/com/budget/gateway/controller/GlobalExceptionHandler.java
+index 45c1116..98510cd 100644
+--- a/gateway/src/main/java/com/budget/gateway/controller/GlobalExceptionHandler.java
++++ b/gateway/src/main/java/com/budget/gateway/controller/GlobalExceptionHandler.java
+@@ -50,6 +50,16 @@ public class GlobalExceptionHandler {
+         throw new IllegalArgumentException(String.format("Username %s already taken", contextDTO.getUserName()));
+     }
+ 
++    @ExceptionHandler(FeignException.BadRequest.class)
++    public void downStreamSecurityHandler (FeignException.BadRequest e,
++                                           HttpServletRequest request){
++         RequestContextDTO contextDTO = contextHandler(request);
++
++         contextDTO.setCategory(LogCategory.SECURITY);
++         contextDTO.setMessage(e.getMessage());
++         contextDTO.setSource("Users"); //TODO: get value from DTO
++    }
++
+     @ExceptionHandler(FeignException.ServiceUnavailable.class)
+     public void networkErrorHandler (FeignException.ServiceUnavailable e,
+                                      HttpServletRequest request){
+diff --git a/users/src/main/java/com/budget/users/controller/GlobalExceptionHandler.java b/users/src/main/java/com/budget/users/controller/GlobalExceptionHandler.java
+index 7429f33..7bdbfeb 100644
+--- a/users/src/main/java/com/budget/users/controller/GlobalExceptionHandler.java
++++ b/users/src/main/java/com/budget/users/controller/GlobalExceptionHandler.java
+@@ -5,6 +5,7 @@ import com.budget.common.dto.InternalFeignDTO;
+ import com.budget.common.dto.LogCategory;
+ import com.budget.common.dto.RequestContextDTO;
+ import com.budget.common.utilities.LogUtil;
++import com.budget.users.util.UserNotFoundException;
+ import jakarta.servlet.http.HttpServletRequest;
+ import org.springframework.dao.DataAccessException;
+ import org.springframework.dao.DuplicateKeyException;
+@@ -30,9 +31,9 @@ public class GlobalExceptionHandler {
+     }
+ 
+     //User not found (login)
+-    @ExceptionHandler (DataAccessException.class)
+-    public ResponseEntity<InternalFeignDTO> userNotFoundHandler (DataAccessException e){
+-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new InternalFeignDTO("User not found", false));
++    @ExceptionHandler (UserNotFoundException.class)
++    public ResponseEntity<InternalFeignDTO> userNotFoundHandler (UserNotFoundException e){
++        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new InternalFeignDTO());
+     }
+ 
+      //Unpredicted exception. Logs full trace and sends uuid upstream
+diff --git a/users/src/main/java/com/budget/users/controller/PublicUserController.java b/users/src/main/java/com/budget/users/controller/PublicUserController.java
+index b2a4b4f..d17caa0 100644
+--- a/users/src/main/java/com/budget/users/controller/PublicUserController.java
++++ b/users/src/main/java/com/budget/users/controller/PublicUserController.java
+@@ -31,8 +31,8 @@ public class PublicUserController {
+         return ResponseEntity.status(HttpStatus.CREATED).body(new FeignResponseDTO("successfully created", "Users"));
+     }
+ 
+-    @GetMapping("/login")
+-    public  ResponseEntity<InternalFeignDTO> login (@PathVariable("username") String username){
++    @GetMapping("/login/{username}")
++    public  ResponseEntity<InternalFeignDTO> login (@PathVariable String username){
+         InternalFeignDTO dto = service.login(username);
+         return ResponseEntity.ok().body(dto);
+     }
+diff --git a/users/src/main/java/com/budget/users/repository/UserRepository.java b/users/src/main/java/com/budget/users/repository/UserRepository.java
+index 0ee2347..a0a7d90 100644
+--- a/users/src/main/java/com/budget/users/repository/UserRepository.java
++++ b/users/src/main/java/com/budget/users/repository/UserRepository.java
+@@ -3,6 +3,7 @@ package com.budget.users.repository;
+ import com.budget.common.dto.InternalFeignDTO;
+ import com.budget.common.dto.RegisterDto;
+ import com.budget.users.repository.mapper.LoginMapper;
++import com.budget.users.util.UserNotFoundException;
+ import org.springframework.dao.EmptyResultDataAccessException;
+ import org.springframework.jdbc.core.JdbcTemplate;
+ import org.springframework.jdbc.support.GeneratedKeyHolder;
+@@ -50,8 +51,12 @@ public class UserRepository {
+         return key.getKeyAs(Integer.class);
+     }
+ 
+-    public Optional<InternalFeignDTO> login(String username) {
++    public InternalFeignDTO login(String username) {
++        try {
+             String sql = String.format("SELECT password, is_admin FROM %s WHERE username = ?", USERS);
+             return jdbc.queryForObject(sql, new LoginMapper(), username);
++        }catch (EmptyResultDataAccessException e){
++            throw new UserNotFoundException(username);
++        }
+     }
+ }
+\ No newline at end of file
+diff --git a/users/src/main/java/com/budget/users/service/UserService.java b/users/src/main/java/com/budget/users/service/UserService.java
+index 72f6fee..7b2a68c 100644
+--- a/users/src/main/java/com/budget/users/service/UserService.java
++++ b/users/src/main/java/com/budget/users/service/UserService.java
+@@ -33,7 +33,6 @@ public class UserService {
+     }
+ 
+     public InternalFeignDTO login(String username) {
+-        return repo.login(username)
+-                .orElseThrow(() -> new UserNotFoundException(username));
++        return repo.login(username);
+     }
+ }

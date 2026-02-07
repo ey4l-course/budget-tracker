@@ -5,6 +5,7 @@ import com.budget.common.dto.InternalFeignDTO;
 import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RequestContextDTO;
 import com.budget.common.utilities.LogUtil;
+import com.budget.users.util.UserNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
@@ -30,9 +31,9 @@ public class GlobalExceptionHandler {
     }
 
     //User not found (login)
-    @ExceptionHandler (DataAccessException.class)
-    public ResponseEntity<InternalFeignDTO> userNotFoundHandler (DataAccessException e){
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new InternalFeignDTO("User not found", false));
+    @ExceptionHandler (UserNotFoundException.class)
+    public ResponseEntity<InternalFeignDTO> userNotFoundHandler (UserNotFoundException e){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new InternalFeignDTO());
     }
 
      //Unpredicted exception. Logs full trace and sends uuid upstream

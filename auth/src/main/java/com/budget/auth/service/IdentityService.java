@@ -7,9 +7,16 @@ import com.budget.auth.util.JwtUtil;
 import com.budget.common.dto.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 
 @Service
 public class IdentityService {
@@ -18,17 +25,22 @@ public class IdentityService {
     private final RegisterClient registerClient;
     private final LoginClient loginClient;
     private final JwtUtil jwt;
+    private final MessageDigest sha256;
+    @Value("${security.fingerprint}")
+    private String hashKey;
 
     public IdentityService (ObjectMapper mapper,
                             BCryptPasswordEncoder encoder,
                             RegisterClient registerClient,
                             LoginClient loginClient,
-                            JwtUtil jwt){
+                            JwtUtil jwt,
+                            MessageDigest sha256){
         this.mapper = mapper;
         this.encoder = encoder;
         this.registerClient = registerClient;
         this.loginClient = loginClient;
         this.jwt = jwt;
+        this.sha256 = sha256;
     }
 
     public FeignResponseDTO register (RegisterDto user){
@@ -38,20 +50,21 @@ public class IdentityService {
             return res.getBody();
     }
 
-    public FeignResponseDTO login(LoginDto credentials) {
-            ResponseEntity<InternalFeignDTO> res = loginClient.login(credentials.getUsername());
-            InternalFeignDTO dto = res.getBody();
-            if (res.getStatusCode().is4xxClientError())
-                throw new CustomAccessDeniedException(new SecurityLogDto(credentials.getUsername(), null, dto.getMsg()));
-            if (res.getStatusCode().is2xxSuccessful()) {
-                authHandler(dto, credentials);
-                return new FeignResponseDTO(200, "Login successful", "Auth", dto.isAdmin());
-            }
-            return new FeignResponseDTO(500, res.getBody().getMsg(), "Users");
+    public InternalFeignDTO login(LoginDto credentials,
+                                  HttpServletRequest request) {
+        SecurityLogDto log = new SecurityLogDto(credentials.getUsername(), passwordFP(credentials.getPassword()), null);
+        request.setAttribute("securityLog", log);
+        ResponseEntity<InternalFeignDTO> res = loginClient.login(credentials.getUsername());
+        return res.getBody();
     }
 
     private String stringEncoder (String raw){
         return encoder.encode(raw);
+    }
+
+    private String passwordFP (String rawPassword){
+        byte[] hash = sha256.digest((rawPassword + hashKey).getBytes(StandardCharsets.UTF_8));
+        return HexFormat.of().formatHex(hash);
     }
 
     private String stringify (Object obj){

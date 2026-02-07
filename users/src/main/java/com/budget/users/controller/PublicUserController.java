@@ -31,8 +31,8 @@ public class PublicUserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new FeignResponseDTO("successfully created", "Users"));
     }
 
-    @GetMapping("/login")
-    public  ResponseEntity<InternalFeignDTO> login (@PathVariable("username") String username){
+    @GetMapping("/login/{username}")
+    public  ResponseEntity<InternalFeignDTO> login (@PathVariable String username){
         InternalFeignDTO dto = service.login(username);
         return ResponseEntity.ok().body(dto);
     }

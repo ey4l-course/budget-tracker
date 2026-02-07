@@ -1,12 +1,12 @@
 package com.budget.auth.controller;
 
 import com.budget.auth.service.IdentityService;
-import com.budget.auth.util.CookieUtil;
 import com.budget.common.dto.FeignResponseDTO;
+import com.budget.common.dto.InternalFeignDTO;
 import com.budget.common.dto.LoginDto;
 import com.budget.common.dto.RegisterDto;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,8 +25,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login (@RequestBody LoginDto credentials){
-        FeignResponseDTO res = identityService.login(credentials);
+    public ResponseEntity<?> login (@RequestBody LoginDto credentials,
+                                    HttpServletRequest request){
+        InternalFeignDTO res = identityService.login(credentials, request);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, credentials.getAccess())
                 .header(HttpHeaders.SET_COOKIE, credentials.getRefresh())

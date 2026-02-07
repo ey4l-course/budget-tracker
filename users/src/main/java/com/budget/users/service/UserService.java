@@ -33,7 +33,6 @@ public class UserService {
     }
 
     public InternalFeignDTO login(String username) {
-        return repo.login(username)
-                .orElseThrow(() -> new UserNotFoundException(username));
+        return repo.login(username);
     }
 }

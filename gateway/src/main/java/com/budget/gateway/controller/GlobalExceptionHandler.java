@@ -50,6 +50,16 @@ public class GlobalExceptionHandler {
         throw new IllegalArgumentException(String.format("Username %s already taken", contextDTO.getUserName()));
     }
 
+    @ExceptionHandler(FeignException.BadRequest.class)
+    public void downStreamSecurityHandler (FeignException.BadRequest e,
+                                           HttpServletRequest request){
+         RequestContextDTO contextDTO = contextHandler(request);
+
+         contextDTO.setCategory(LogCategory.SECURITY);
+         contextDTO.setMessage(e.getMessage());
+         contextDTO.setSource("Users"); //TODO: get value from DTO
+    }
+
     @ExceptionHandler(FeignException.ServiceUnavailable.class)
     public void networkErrorHandler (FeignException.ServiceUnavailable e,
                                      HttpServletRequest request){
