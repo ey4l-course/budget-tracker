@@ -50,14 +50,20 @@ public class GlobalExceptionHandler {
         throw new IllegalArgumentException(String.format("Username %s already taken", contextDTO.getUserName()));
     }
 
-    @ExceptionHandler(FeignException.BadRequest.class)
-    public void downStreamSecurityHandler (FeignException.BadRequest e,
+    @ExceptionHandler(FeignException.Unauthorized.class)
+    public void downStreamSecurityHandler (FeignException.Unauthorized e,
                                            HttpServletRequest request){
          RequestContextDTO contextDTO = contextHandler(request);
-
          contextDTO.setCategory(LogCategory.SECURITY);
-         contextDTO.setMessage(e.getMessage());
-         contextDTO.setSource("Users"); //TODO: get value from DTO
+         try {
+             FeignResponseDTO res = mapper.readValue(e.contentUTF8(), FeignResponseDTO.class);
+             contextDTO.setUuid(res.getMsg());
+             contextDTO.setSource(res.getSource());
+         }catch (JsonProcessingException parseError){
+             contextDTO.setDebug(parseError);
+             contextDTO.setUuid("9ece7ebd448810b3ab4b61510ed29378");
+         }
+         contextDTO.setOutcome("[REJECTED]");
     }
 
     @ExceptionHandler(FeignException.ServiceUnavailable.class)
@@ -76,6 +82,7 @@ public class GlobalExceptionHandler {
         unexpectedHandler(e, contextDTO, body);
     }
 
+    //GW unexpected errors handler
     @ExceptionHandler(Exception.class)
     public void unexpectedErrors (Exception e,
                                   HttpServletRequest request){
@@ -87,6 +94,7 @@ public class GlobalExceptionHandler {
         contextDTO.setOutcome("[FAILURE]");
     }
 
+    //Downstream 500 or network errors handler
     private void unexpectedHandler (Exception e, RequestContextDTO contextDTO, String body){
         try {
             FeignResponseDTO res = mapper.readValue(body, FeignResponseDTO.class);

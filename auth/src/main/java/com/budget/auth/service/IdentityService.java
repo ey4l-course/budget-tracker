@@ -50,12 +50,16 @@ public class IdentityService {
             return res.getBody();
     }
 
-    public InternalFeignDTO login(LoginDto credentials,
+    public FeignResponseDTO login(LoginDto credentials,
                                   HttpServletRequest request) {
         SecurityLogDto log = new SecurityLogDto(credentials.getUsername(), passwordFP(credentials.getPassword()), null);
         request.setAttribute("securityLog", log);
-        ResponseEntity<InternalFeignDTO> res = loginClient.login(credentials.getUsername());
-        return res.getBody();
+        InternalFeignDTO res = loginClient.login(credentials.getUsername()).getBody();
+        if (res == null)
+            throw new RuntimeException("loginClient returned status 2xx but null body");
+        if (!authHandler(res, credentials))
+            throw new CustomAccessDeniedException("Password mismatch");
+        return new FeignResponseDTO("Login successful", "Auth", res.isAdmin());
     }
 
     private String stringEncoder (String raw){
@@ -75,12 +79,13 @@ public class IdentityService {
         }
     }
 
-    private void authHandler (InternalFeignDTO dto, LoginDto credentials){
+    private boolean authHandler (InternalFeignDTO dto, LoginDto credentials){
         if (encoder.matches(credentials.getPassword(), dto.getMsg())) {
             credentials.setAccess(jwt.generateAccessToken(credentials.getUsername(), dto.isAdmin() ? "admin" : "user"));
             credentials.setRefresh(jwt.generateRefreshToken(credentials.getUsername(), dto.isAdmin() ? "admin" : "user"));
+            return true;
         }else {
-            throw new CustomAccessDeniedException(new SecurityLogDto(credentials.getUsername(), credentials.getPassword(), "Wrong password"));
+            return false;
         }
     }
 }

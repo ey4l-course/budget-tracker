@@ -1,8 +1,7 @@
 package com.budget.auth.controller;
 
+import com.budget.auth.util.CustomAccessDeniedException;
 import com.budget.common.dto.FeignResponseDTO;
-import com.budget.common.dto.LogCategory;
-import com.budget.common.dto.RequestContextDTO;
 import com.budget.common.dto.SecurityLogDto;
 import com.budget.common.utilities.LogUtil;
 import feign.FeignException;
@@ -29,8 +28,18 @@ public class GlobalExceptionHandler {
     public  ResponseEntity<FeignResponseDTO> userNotFoundHandler (FeignException.Unauthorized e,
                                                                   HttpServletRequest request){
         SecurityLogDto dto = (SecurityLogDto) request.getAttribute("securityLog");
+        dto.setMessage(e.getMessage());
         String uuid = logger.securityLog(dto);
-        return ResponseEntity.status(e.status()).body(new FeignResponseDTO(uuid,"Users"));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new FeignResponseDTO(uuid,"Auth"));
+    }
+
+    @ExceptionHandler(CustomAccessDeniedException.class)
+    public ResponseEntity<FeignResponseDTO> passwordMismatchHandler (CustomAccessDeniedException e,
+                                                                     HttpServletRequest request){
+        SecurityLogDto dto = (SecurityLogDto) request.getAttribute("securityLog");
+        dto.setMessage(e.getMessage());
+        String uuid = logger.securityLog(dto);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new FeignResponseDTO(uuid,"Auth"));
     }
 
     //Propagate to GW

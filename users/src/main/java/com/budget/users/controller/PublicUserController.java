@@ -32,7 +32,7 @@ public class PublicUserController {
     }
 
     @GetMapping("/login/{username}")
-    public  ResponseEntity<InternalFeignDTO> login (@PathVariable String username){
+    public  ResponseEntity<InternalFeignDTO> login (@PathVariable("username") String username){
         InternalFeignDTO dto = service.login(username);
         return ResponseEntity.ok().body(dto);
     }

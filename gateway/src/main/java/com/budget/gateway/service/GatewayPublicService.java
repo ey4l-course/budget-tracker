@@ -1,13 +1,12 @@
 package com.budget.gateway.service;
 
-import com.budget.common.dto.FeignResponseDTO;
-import com.budget.common.dto.RegisterDto;
+import com.budget.common.dto.*;
 import com.budget.gateway.client.PublicUserClient;
-import com.budget.common.dto.LoginDto;
 import com.budget.gateway.util.ValidatorsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -42,17 +41,15 @@ public class GatewayPublicService {
         return result.getStatusCode();
     }
 
-    public HttpStatusCode login(LoginDto login) {
-        String jsonBody;
-        try {
-            jsonBody = mapper.writeValueAsString(login);
-        }catch (JsonProcessingException e){
-            throw new RuntimeException(e);
-        }
-        ResponseEntity<FeignResponseDTO> result = publicUserClient.forward("login", jsonBody);
-        if(!result.getStatusCode().is2xxSuccessful() || result.getBody() == null)
-            throw new RuntimeException("publicUserClient.forward failed");
-        return result.getStatusCode();
+    public void login(LoginDto login,
+                                                  RequestContextDTO contextDTO) {
+        ResponseEntity<FeignResponseDTO> res = publicUserClient.forward("login", stringify(login));
+        FeignResponseDTO authDto = res.getBody();
+        if (res.getHeaders().get(HttpHeaders.SET_COOKIE) == null)
+            throw new RuntimeException("No cookies found");
+        if (authDto.isFlag())
+            contextDTO.setCategory(LogCategory.ADMIN);
+        contextDTO.setCookies(res.getHeaders().get(HttpHeaders.SET_COOKIE));
     }
 
     private String stringify(Object obj){

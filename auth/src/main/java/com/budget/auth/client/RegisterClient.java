@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @FeignClient(name = "registerClient", url = "${routes.public}")
 public interface RegisterClient {
     @RequestMapping(method = RequestMethod.POST, value = "/{path}", consumes = "application/json")
-    ResponseEntity<FeignResponseDTO> register (@PathVariable String path,
+    ResponseEntity<FeignResponseDTO> register (@PathVariable ("path") String path,
                                                @RequestBody String body);
 }

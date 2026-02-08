@@ -79,7 +79,7 @@ public class LogUtil {
         logPayload.put("fingerPrint", sec.getFingerPrint());
         logPayload.put("message", sec.getMessage());
         logPayload.put("timeStamp", ISO_FORMAT.format(Instant.now()));
-        logger.info("security-log", StructuredArguments.entries(logPayload));
+        securityLogger.info("security-log", StructuredArguments.entries(logPayload));
         return uuid;
     }
 }

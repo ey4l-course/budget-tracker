@@ -11,23 +11,25 @@ public class CookieUtil {
     @Value("${jwt.refresh.expiry}")
     private Long refresh;
 
-    public ResponseCookie addAccessCookie (String jwt){
+    public String addAccessCookie (String jwt){
         return ResponseCookie.from("access", jwt)
                 .httpOnly(true)
                 .secure(false) //TODO: Change to true in prod
                 .path("/")
                 .maxAge(access / 1000)
                 .sameSite("Lax")
-                .build();
+                .build()
+                .toString();
     }
 
-    public ResponseCookie addRefreshCookie (String jwt){
+    public String addRefreshCookie (String jwt){
         return ResponseCookie.from("refresh", jwt)
                 .httpOnly(true)
                 .secure(false) //TODO: Change to true in prod
                 .path("/")
                 .maxAge(refresh / 1000)
                 .sameSite("Lax")
-                .build();
+                .build()
+                .toString();
     }
 }

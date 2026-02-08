@@ -32,8 +32,8 @@ public class GlobalExceptionHandler {
 
     //User not found (login)
     @ExceptionHandler (UserNotFoundException.class)
-    public ResponseEntity<InternalFeignDTO> userNotFoundHandler (UserNotFoundException e){
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new InternalFeignDTO());
+    public ResponseEntity<String> userNotFoundHandler (UserNotFoundException e){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
     }
 
      //Unpredicted exception. Logs full trace and sends uuid upstream
