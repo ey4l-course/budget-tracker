@@ -1,0 +1,30 @@
+Successful register
+
+curl -vv-i -X POST http://localhost:8080/public/register \
+-H "Content-Type: application/json" \
+-d '{
+  "id": "123456782",
+  "username": "tester01",
+  "password": "Password123!",
+  "givenName": "John",
+  "surname": "Doe",
+  "mobile": "0501234567",
+  "email": "john.doe@example.com",
+  "address": {
+    "state": "Israel",
+    "city": "Tel Aviv",
+    "street": "Rothschild",
+    "house": 10,
+    "apartment": 5,
+    "zipcode": "61000"
+  }
+}'
+
+Successful login
+
+curl -vv -i -X POST http://localhost:8080/public/login \
+-H "Content-Type: application/json" \
+-d '{
+  "username": "tester01",
+  "password": "Password123!"
+}'

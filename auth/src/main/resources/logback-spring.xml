@@ -84,7 +84,7 @@
         <appender-ref ref="ASYNC_FULL_ERROR"/>
     </logger>
 
-    <logger name="securityLogger" level="INFO" additivity="false">
+    <logger name="SEC" level="INFO" additivity="false">
         <appender-ref ref="MAIN_JSON_FILE" />
     </logger>
 

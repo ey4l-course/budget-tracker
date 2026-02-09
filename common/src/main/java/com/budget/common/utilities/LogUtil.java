@@ -31,14 +31,12 @@ public class LogUtil {
     }
 
     public String logRequest (RequestContextDTO request){
-        String uuid = null;
+        String uuid = request.getUuid();
         if (LogCategory.UNEXPECTED_ERROR.equals(request.getCategory())){
             uuid = uuidGenerator.generate().toString();
             fullErrorLogger.error("FULL STACK-TRACE [log ID: {}]", uuid, request.getDebug());
         } else if (LogCategory.USER_ERROR.equals(request.getCategory())) {
             uuid = uuidGenerator.generate().toString();
-        } else if (LogCategory.INTERNAL.equals(request.getCategory())) {
-            uuid = request.getUuid();
         }
         Map<String, Object> logPayload = new HashMap<>();
         if (uuid != null)
