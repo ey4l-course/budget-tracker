@@ -8,8 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SecurityLogDto {
-    private
     private String username;
-    private String password;
+    private String fingerPrint;
     private String message;
 }

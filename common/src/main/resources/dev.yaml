@@ -20,6 +20,12 @@ server:
   transactions:
     port: 8084
 
+spring:
+  cloud:
+    openfeign:
+      okhttp:
+        enabled: true
+
 app:
   security:
     cors:

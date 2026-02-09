@@ -5,10 +5,9 @@ import lombok.Getter;
 
 @Getter
 public class CustomAccessDeniedException extends RuntimeException {
-    private final SecurityLogDto payload;
+    private final Object payload;
 
-
-    public CustomAccessDeniedException(SecurityLogDto payload){
+    public CustomAccessDeniedException(Object payload){
         this.payload = payload;
     }
 }

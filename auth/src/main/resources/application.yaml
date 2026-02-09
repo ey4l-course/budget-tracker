@@ -5,6 +5,9 @@ spring:
   config:
     import: "classpath:/${APP_ENV:dev}.yaml"
 
+security:
+  fingerprint: Temporary-key-for-dev-environment-only
+
 jwt:
   secret: Temporary-key-for-dev-environment-only
   access:

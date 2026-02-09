@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -73,6 +74,9 @@ public class ContextInitUtil extends OncePerRequestFilter {
             //Add log ID in header if exists
             if (uuid != null)
                 response.addHeader("X-log-ID", uuid);
+
+            if (dto.getCookies() != null)
+                dto.getCookies().forEach(cookie -> response.addHeader(HttpHeaders.SET_COOKIE, cookie));
 
             //Write body if not already written - Should always be true
             if (!response.isCommitted()){

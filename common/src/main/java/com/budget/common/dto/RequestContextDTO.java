@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -24,6 +25,9 @@ public class RequestContextDTO {
         private Instant endProcess;
         private Exception debug;
         private String payload;
+        private String uuid;
+        private String source;
+        private List<String> cookies;
 
         public RequestContextDTO(String entryRoute, String method, String userAgent) {
             this.userName = "n/a";

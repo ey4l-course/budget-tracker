@@ -5,5 +5,6 @@ public enum LogCategory {
     OPERATION,
     ADMIN,
     UNEXPECTED_ERROR,
-    SECURITY
+    SECURITY,
+    INTERNAL
 }

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -30,7 +31,7 @@ public class LogUtil {
     }
 
     public String logRequest (RequestContextDTO request){
-        String uuid = null;
+        String uuid = request.getUuid();
         if (LogCategory.UNEXPECTED_ERROR.equals(request.getCategory())){
             uuid = uuidGenerator.generate().toString();
             fullErrorLogger.error("FULL STACK-TRACE [log ID: {}]", uuid, request.getDebug());
@@ -54,22 +55,29 @@ public class LogUtil {
             logPayload.put("endProcess", ISO_FORMAT.format(request.getEndProcess()));
         if (request.getDebug() != null)
             logPayload.put("debug",  parser.ExceptionParser(request.getDebug()));
+        if (request.getSource() != null)
+            logPayload.put("sourceService", request.getSource());
         if (!"GET".equals(request.getMethod()))
             logPayload.put("payload", request.getPayload());
         logger.info("request-log", StructuredArguments.entries(logPayload));
         return uuid;
     }
 
-    public String securityLog(SecurityLogDto sec) throws IllegalAccessException{
+    public String internalErrorLog(Exception e){
+        String uuid = uuidGenerator.generate().toString();
+        fullErrorLogger.error("FULL STACK-TRACE [log ID: {}]", uuid, e);
+        return uuid;
+    }
+
+    public String securityLog(SecurityLogDto sec){
         String uuid = uuidGenerator.generate().toString();
         Map<String, Object> logPayload = new HashMap<>();
         logPayload.put("uuid", uuid);
-        Field[] fields = sec.getClass().getDeclaredFields();
-        for (Field field : fields){
-            field.setAccessible(true);
-            logPayload.put(field.getName(), field.get(sec));
-        }
-        logger.info("security-log", StructuredArguments.entries(logPayload));
+        logPayload.put("username", sec.getUsername());
+        logPayload.put("fingerPrint", sec.getFingerPrint());
+        logPayload.put("message", sec.getMessage());
+        logPayload.put("timeStamp", ISO_FORMAT.format(Instant.now()));
+        securityLogger.info("security-log", StructuredArguments.entries(logPayload));
         return uuid;
     }
 }
