@@ -1,6 +1,6 @@
 Successful register
 
-curl -vv-i -X POST http://localhost:8080/public/register \
+curl -v -i -X POST http://localhost:8080/public/register \
 -H "Content-Type: application/json" \
 -d '{
   "id": "123456782",
@@ -20,9 +20,9 @@ curl -vv-i -X POST http://localhost:8080/public/register \
   }
 }'
 
-Successful login
+login
 
-curl -vv -i -X POST http://localhost:8080/public/login \
+curl -v -i -X POST http://localhost:8080/public/login \
 -H "Content-Type: application/json" \
 -d '{
   "username": "tester01",
