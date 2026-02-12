@@ -14,10 +14,10 @@ public class CookieUtil {
     public String addAccessCookie (String jwt){
         return ResponseCookie.from("access", jwt)
                 .httpOnly(true)
-                .secure(false) //TODO: Change to true in prod
+                .secure(true)
                 .path("/")
                 .maxAge(access / 1000)
-                .sameSite("Lax")
+                .sameSite("None")
                 .build()
                 .toString();
     }
@@ -25,10 +25,10 @@ public class CookieUtil {
     public String addRefreshCookie (String jwt){
         return ResponseCookie.from("refresh", jwt)
                 .httpOnly(true)
-                .secure(false) //TODO: Change to true in prod
+                .secure(true)
                 .path("/")
                 .maxAge(refresh / 1000)
-                .sameSite("Lax")
+                .sameSite("None")
                 .build()
                 .toString();
     }

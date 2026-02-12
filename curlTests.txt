@@ -1,6 +1,6 @@
 Successful register
 
-curl -vv-i -X POST http://localhost:8080/public/register \
+curl -v -i -X POST http://localhost:8080/public/register \
 -H "Content-Type: application/json" \
 -d '{
   "id": "123456782",
