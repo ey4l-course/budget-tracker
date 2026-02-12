@@ -3,6 +3,7 @@ package com.budget.gateway.controller;
 import com.budget.common.dto.*;
 import com.budget.gateway.dto.ValidationDTO;
 import com.budget.gateway.service.GatewayPublicService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -48,6 +49,17 @@ public class GatewayController {
         service.login(login, contextDTO);
         markSuccess(contextDTO, HttpStatus.OK, "Login successful");
     }
+
+    @GetMapping("/test-cookies")
+    public void dummy (HttpServletRequest request) {
+        RequestContextDTO contextDTO = contextHandler(request);
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie : cookies){
+            System.out.println(cookie.getValue());
+        }
+        markSuccess(contextDTO, HttpStatus.NO_CONTENT, "Test success");
+    }
+
     //Helper
     private RequestContextDTO contextHandler (HttpServletRequest request){
         RequestContextDTO ctx = (RequestContextDTO) request.getAttribute("context");
