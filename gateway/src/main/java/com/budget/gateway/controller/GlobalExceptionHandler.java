@@ -54,15 +54,13 @@ public class GlobalExceptionHandler {
     public void downStreamSecurityHandler (FeignException.Unauthorized e,
                                            HttpServletRequest request){
          RequestContextDTO contextDTO = contextHandler(request);
+         contextDTO.setMessage("Bad credentials");
          contextDTO.setStatusCode(HttpStatus.valueOf(e.status()));
          contextDTO.setCategory(LogCategory.SECURITY);
-         System.out.println("e.getMessage()" + e.getMessage());
-         System.out.println("e.contentUTF8()" + e.contentUTF8());
          try {
              FeignResponseDTO res = mapper.readValue(e.contentUTF8(), FeignResponseDTO.class);
              contextDTO.setUuid(res.getMsg());
              contextDTO.setSource(res.getSource());
-             System.out.println(contextDTO.toString());
          }catch (JsonProcessingException parseError){
              contextDTO.setDebug(parseError);
              contextDTO.setUuid("9ece7ebd448810b3ab4b61510ed29378");

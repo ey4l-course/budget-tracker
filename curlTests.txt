@@ -20,9 +20,9 @@ curl -v -i -X POST http://localhost:8080/public/register \
   }
 }'
 
-Successful login
+login
 
-curl -vv -i -X POST http://localhost:8080/public/login \
+curl -v -i -X POST http://localhost:8080/public/login \
 -H "Content-Type: application/json" \
 -d '{
   "username": "tester01",

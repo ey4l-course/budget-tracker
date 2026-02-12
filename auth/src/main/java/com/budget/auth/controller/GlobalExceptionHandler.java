@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
     public  ResponseEntity<FeignResponseDTO> userNotFoundHandler (FeignException.Unauthorized e,
                                                                   HttpServletRequest request){
         SecurityLogDto dto = (SecurityLogDto) request.getAttribute("securityLog");
-        dto.setMessage(e.getMessage());
+        dto.setMessage(e.contentUTF8());
         String uuid = logger.securityLog(dto);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new FeignResponseDTO(uuid,"Auth"));
     }
@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<FeignResponseDTO> passwordMismatchHandler (CustomAccessDeniedException e,
                                                                      HttpServletRequest request){
         SecurityLogDto dto = (SecurityLogDto) request.getAttribute("securityLog");
-        dto.setMessage(e.getMessage());
+        dto.setMessage(e.getPayload().toString());
         String uuid = logger.securityLog(dto);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new FeignResponseDTO(uuid,"Auth"));
     }
@@ -55,6 +55,7 @@ public class GlobalExceptionHandler {
     //Unpredicted exception. Logs full trace and sends uuid upstream
     @ExceptionHandler(Exception.class)
     public ResponseEntity<FeignResponseDTO> unexpectedErrors (Exception e){
+        System.out.println(e.getMessage() + "Exception thrown");
         String uuid = logger.internalErrorLog(e);
         FeignResponseDTO res = new FeignResponseDTO(uuid, "Auth");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(res);
