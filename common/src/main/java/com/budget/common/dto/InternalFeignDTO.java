@@ -10,4 +10,6 @@ import lombok.NoArgsConstructor;
 public class InternalFeignDTO {
     private String msg;
     private boolean admin;
+    private String givenName;
+    private String surname;
 }

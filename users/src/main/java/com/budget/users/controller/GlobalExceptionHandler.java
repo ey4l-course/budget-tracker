@@ -1,20 +1,16 @@
 package com.budget.users.controller;
 
 import com.budget.common.dto.FeignResponseDTO;
-import com.budget.common.dto.InternalFeignDTO;
-import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RequestContextDTO;
 import com.budget.common.utilities.LogUtil;
 import com.budget.users.util.UserNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.sql.SQLException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {

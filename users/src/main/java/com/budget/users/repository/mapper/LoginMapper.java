@@ -11,7 +11,9 @@ public class LoginMapper implements RowMapper<InternalFeignDTO> {
     public InternalFeignDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new InternalFeignDTO(
                 rs.getString("password"),
-                rs.getBoolean("is_admin")
+                rs.getBoolean("is_admin"),
+                rs.getString("given_name"),
+                rs.getString("surname")
         );
     }
 }

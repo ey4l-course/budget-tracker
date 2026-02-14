@@ -59,7 +59,11 @@ public class IdentityService {
             throw new RuntimeException("loginClient returned status 2xx but null body");
         if (!authHandler(res, credentials))
             throw new CustomAccessDeniedException("Password mismatch");
-        return new FeignResponseDTO("Login successful", "Auth", res.isAdmin());
+        record UserDetails (String name, String surname){};
+        return new FeignResponseDTO(new UserDetails(res.getGivenName(), res.getSurname()),
+                "Login successful",
+                "Auth",
+                res.isAdmin());
     }
 
     private String stringEncoder (String raw){

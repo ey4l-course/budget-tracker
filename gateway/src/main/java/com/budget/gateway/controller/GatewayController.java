@@ -7,7 +7,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -34,7 +33,7 @@ public class GatewayController {
 
     @PostMapping("/register")
     public void register (@RequestBody RegisterDto user,
-                                            HttpServletRequest request) throws Exception {
+                                            HttpServletRequest request){
         RequestContextDTO contextDTO = contextHandler(request);
         contextDTO.setUserName(user.getUsername());
         if (service.register(user).isSameCodeAs(HttpStatus.CREATED))
@@ -46,8 +45,8 @@ public class GatewayController {
                        HttpServletRequest request){
         RequestContextDTO contextDTO = contextHandler(request);
         contextDTO.setUserName(login.getUsername());
-        service.login(login, contextDTO);
-        markSuccess(contextDTO, HttpStatus.OK, "Login successful");
+        String res = service.login(login, contextDTO);
+        markSuccess(contextDTO, HttpStatus.OK, res);
     }
 
     @GetMapping("/test-cookies")

@@ -5,9 +5,7 @@ import com.budget.gateway.client.PublicUserClient;
 import com.budget.gateway.util.ValidatorsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import feign.FeignException;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -41,7 +39,7 @@ public class GatewayPublicService {
         return result.getStatusCode();
     }
 
-    public void login(LoginDto login,
+    public String login(LoginDto login,
                                                   RequestContextDTO contextDTO) {
         ResponseEntity<FeignResponseDTO> res = publicUserClient.forward("login", stringify(login));
         FeignResponseDTO authDto = res.getBody();
@@ -50,6 +48,11 @@ public class GatewayPublicService {
         if (authDto.isFlag())
             contextDTO.setCategory(LogCategory.ADMIN);
         contextDTO.setCookies(res.getHeaders().get(HttpHeaders.SET_COOKIE));
+        try {
+            return mapper.writeValueAsString(authDto.getBody());
+        }catch (JsonProcessingException e){
+            throw new RuntimeException("Unable to parse JSON");
+        }
     }
 
     private String stringify(Object obj){

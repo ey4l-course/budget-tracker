@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 @NoArgsConstructor(force = true)
 @RequiredArgsConstructor
 public class FeignResponseDTO {
+    private Object body;
     private final String msg;
     private final String source;
     boolean flag = false;
