@@ -3,6 +3,7 @@ package com.budget.auth.controller;
 import com.budget.auth.util.CustomAccessDeniedException;
 import com.budget.common.dto.FeignResponseDTO;
 import com.budget.common.dto.SecurityLogDto;
+import com.budget.common.exceptions.CriticalIncidentException;
 import com.budget.common.utilities.LogUtil;
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,6 +51,13 @@ public class GlobalExceptionHandler {
             return ResponseEntity.status(503).body(new FeignResponseDTO(uuid, "Auth"));
         }
         return ResponseEntity.status(e.status()).body(e.contentUTF8());
+    }
+
+    @ExceptionHandler(CriticalIncidentException.class)
+    public ResponseEntity<FeignResponseDTO> criticalHandler (CriticalIncidentException e){
+        //Trigger SMS/mail broker
+        String uuid = logger.internalErrorLog(e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new FeignResponseDTO(uuid, "AUTH"));
     }
 
     //Unpredicted exception. Logs full trace and sends uuid upstream
