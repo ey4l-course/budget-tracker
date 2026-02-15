@@ -41,23 +41,28 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PrivateKey privateKey(@Value("${auth.private-key-path}") String path) throws Exception {
-        String key = new String(Files.readAllBytes(Paths.get(path)));
-        String privateKeyPEM = key
-                .replace("-----BEGIN PRIVATE KEY-----", "")
-                .replaceAll(System.lineSeparator(), "")
-                .replace("-----END PRIVATE KEY-----", "");
+    public PrivateKey privateKey(@Value("${security.private-key-path}") String path) throws Exception {
+        // Paths.get handles the string from your yaml
+        String content = Files.readString(Paths.get(path));
 
-        byte[] encoded = Base64.getDecoder().decode(privateKeyPEM);
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
-        return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
+        // Clean the string: Remove all "---" lines and all whitespace
+        String cleanKey = content
+                .replaceAll("(?m)^---.*---$", "") // Removes header/footer lines
+                .replaceAll("\\s", "");           // Removes all newlines/spaces
+
+        byte[] encoded = Base64.getDecoder().decode(cleanKey);
+        return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(encoded));
     }
 
     @Bean
-    public PublicKey publicKey(@Value("${auth.public-key-str}") String publicKeyStr) throws Exception {
-        byte[] keyBytes = Base64.getDecoder().decode(publicKeyStr);
-        X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        return kf.generatePublic(spec);
+    public PublicKey publicKey(@Value("${security.public-key-path}") String path) throws Exception {
+        String content = Files.readString(Paths.get(path));
+
+        String cleanKey = content
+                .replaceAll("(?m)^---.*---$", "")
+                .replaceAll("\\s", "");
+
+        byte[] encoded = Base64.getDecoder().decode(cleanKey);
+        return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(encoded));
     }
 }

@@ -7,6 +7,8 @@ spring:
 
 security:
   fingerprint: Temporary-key-for-dev-environment-only
+  private-key-path: "${user.home}/keys/private_key_pkcs8.pem"
+  public-key-path: "${user.home}/keys/public_key.pem"
 
 jwt:
   secret: Temporary-key-for-dev-environment-only
