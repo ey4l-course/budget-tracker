@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
@@ -16,6 +17,7 @@ import java.util.Base64;
 import java.util.HexFormat;
 import java.security.MessageDigest;
 
+@Component
 public class IdentityUtil {
     private final BCryptPasswordEncoder encoder;
     private final MessageDigest sha256;
@@ -26,7 +28,7 @@ public class IdentityUtil {
     @Value("${security.fingerprint}")
     private String hashKey;
 
-    protected IdentityUtil(BCryptPasswordEncoder encoder,
+    public IdentityUtil(BCryptPasswordEncoder encoder,
                            MessageDigest sha256,
                            ObjectMapper mapper,
                            JwtUtil jwt,
@@ -68,7 +70,7 @@ public class IdentityUtil {
     protected String internalSignatureHandler (String username) {
         try {
             Signature signature = Signature.getInstance("SHA256withRSA");
-            String payload = String.format("username=%stimestamp=%s", username, System.currentTimeMillis());
+            String payload = String.format("username=%s;timestamp=%s", username, System.currentTimeMillis());
             signature.initSign(privateKey);
             signature.update(payload.getBytes());
             String sig = Base64.getEncoder().encodeToString(signature.sign());

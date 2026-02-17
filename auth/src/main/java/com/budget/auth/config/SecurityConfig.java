@@ -49,6 +49,34 @@ public class SecurityConfig {
 
     @Bean
     public PrivateKey privateKey() {
+        return loadPrivateKey();
+    }
+
+    @Bean
+    public PublicKey publicKey(){
+        return loadPublicKey();
+    }
+
+    @PostConstruct
+    public void validateKeysOnBoot(){
+        try {
+            String testString = "Startup test" + System.currentTimeMillis();
+            Signature sig = Signature.getInstance("SHA256withRSA");
+            sig.initSign(loadPrivateKey());
+            sig.update(testString.getBytes());
+            byte[] signature = sig.sign();
+
+            sig.initVerify(loadPublicKey());
+            sig.update(testString.getBytes());
+            if (!sig.verify(signature))
+                throw new RuntimeException("Keys do not match");
+        }catch (Exception e){
+            startUpError(e);
+        }
+
+    }
+
+    private PrivateKey loadPrivateKey(){
         try {
             String content = Files.readString(Paths.get(privateKeyPath));
             String cleanKey = content
@@ -63,8 +91,7 @@ public class SecurityConfig {
         }
     }
 
-    @Bean
-    public PublicKey publicKey(){
+    private PublicKey loadPublicKey(){
         try {
             String content = Files.readString(Paths.get(publicKeyPath));
 
@@ -78,25 +105,6 @@ public class SecurityConfig {
             startUpError(e);
             return null;
         }
-    }
-
-    @PostConstruct
-    public void validateKeysOnBoot(){
-        try {
-            String testString = "Startup test" + System.currentTimeMillis();
-            Signature sig = Signature.getInstance("SHA256withRSA");
-            sig.initSign(privateKey());
-            sig.update(testString.getBytes());
-            byte[] signature = sig.sign();
-
-            sig.initVerify(publicKey());
-            sig.update(testString.getBytes());
-            if (!sig.verify(signature))
-                throw new RuntimeException("Keys do not match");
-        }catch (Exception e){
-            startUpError(e);
-        }
-
     }
 
     private void startUpError (Exception e){
