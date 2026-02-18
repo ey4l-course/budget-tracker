@@ -1,8 +1,12 @@
 package com.budget.common.utilities;
 
 import com.budget.common.client.GetWellKnown;
+import com.budget.common.dto.AuthenticatedDTO;
 import com.budget.common.dto.SignatureVerificationDTO;
 import com.budget.common.exceptions.CriticalIncidentException;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -12,6 +16,7 @@ import java.security.*;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
 @Component
 @ConditionalOnProperty(
@@ -42,6 +47,37 @@ public class SignatureHandlerUtil {
             return dto.getUsername();
         } catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException e){
             throw new CriticalIncidentException(e.getMessage(), e);
+        }
+    }
+
+    public AuthenticatedDTO extractDetails (String jwt){
+        return new AuthenticatedDTO(
+                extractClaims(jwt, Claims :: getSubject),
+                extractClaims(jwt, claims -> claims.get("role", String.class))
+        );
+    }
+
+    private <T> T extractClaims (String jwt, Function <Claims, T> claimResolver){
+        return claimResolver.apply(extractAllClaims(jwt, false));
+    }
+
+    private Claims extractAllClaims (String jwt, boolean attempt){
+        try{
+            return Jwts.parser()
+                    .verifyWith(cachedKey.get())
+                    .requireIssuer("budget")
+                    .build()
+                    .parseSignedClaims(jwt)
+                    .getPayload();
+        }catch (ExpiredJwtException e){
+            //refresh logic
+            return null; //TODO: remove after refresh logic implementation
+        }catch (io.jsonwebtoken.security.SignatureException e){
+            if (!attempt){
+                getPublicKey();
+                return extractAllClaims(jwt, true);
+            }
+            throw new SecurityException("Invalid JWT was attempted:"+jwt);
         }
     }
 
