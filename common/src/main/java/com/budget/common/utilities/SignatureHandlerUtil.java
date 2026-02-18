@@ -4,6 +4,7 @@ import com.budget.common.client.GetWellKnown;
 import com.budget.common.dto.SignatureVerificationDTO;
 import com.budget.common.exceptions.CriticalIncidentException;
 import jakarta.annotation.PostConstruct;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -13,6 +14,11 @@ import java.util.Base64;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Component
+@ConditionalOnProperty(
+        name = "internal.auth",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class SignatureHandlerUtil {
     private final GetWellKnown getKey;
 
