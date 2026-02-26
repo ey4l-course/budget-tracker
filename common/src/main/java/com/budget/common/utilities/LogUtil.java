@@ -2,10 +2,12 @@ package com.budget.common.utilities;
 
 import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RequestContextDTO;
+import com.budget.common.dto.SecretServiceDTO;
 import com.budget.common.dto.SecurityLogDto;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.NoArgGenerator;
 import net.logstash.logback.argument.StructuredArguments;
+import org.bouncycastle.util.Fingerprint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -24,6 +26,7 @@ public class LogUtil {
     private final Logger logger = LoggerFactory.getLogger(LogUtil.class);
     private final Logger fullErrorLogger = LoggerFactory.getLogger("fullErrorLogger");
     private final Logger securityLogger = LoggerFactory.getLogger("SEC");
+    private final Logger aaaLoger = LoggerFactory.getLogger("aaaLogger");
     private static final DateTimeFormatter ISO_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX").withZone(ZoneOffset.UTC);
 
     public LogUtil (ExceptionParserUtil parser){
@@ -79,5 +82,14 @@ public class LogUtil {
         logPayload.put("timeStamp", ISO_FORMAT.format(Instant.now()));
         securityLogger.info("security-log", StructuredArguments.entries(logPayload));
         return uuid;
+    }
+
+    public void secretService(SecretServiceDTO dto){
+        Map<String, Object> logPayload = new HashMap<>();
+        logPayload.put("name", dto.getName());
+        logPayload.put("IP", dto.getIp());
+        logPayload.put("fingerprint", dto.getFingerprint());
+        logPayload.put("Timestamp", ISO_FORMAT.format(Instant.now()));
+        aaaLoger.info("key-issued" ,StructuredArguments.entries(logPayload));
     }
 }

@@ -47,24 +47,4 @@ public class JwtUtil {
                 .signWith(secret, Jwts.SIG.RS256)
                 .compact();
     }
-//
-//    public String extractUsername (String jwt) {
-//        return extractClaims(jwt, Claims::getSubject);
-//    }
-//
-//    public String extractRole (String jwt) {
-//        return extractClaims(jwt, claims -> claims.get("role", String.class));
-//    }
-//
-//    private <T> T extractClaims(String jwt, Function<Claims, T> claimResolver) {
-//        return claimResolver.apply(extractAllClaims(jwt));
-//    }
-//
-//    private Claims extractAllClaims (String jwt) {
-//        return (Claims) Jwts.parser()
-//                .verifyWith(getKey())
-//                .build()
-//                .parseSignedClaims(jwt)
-//                .getPayload();
-//    }
 }

@@ -1,5 +1,6 @@
 server:
   port: ${server.transactions.port}
+  name: TXN
 
 spring:
   config:

@@ -1,17 +1,21 @@
 server:
   port: ${server.auth.port}
+  name: AUTH
 
 spring:
   config:
     import: "classpath:/${APP_ENV:dev}.yaml"
 
 security:
-  fingerprint: Temporary-key-for-dev-environment-only
   private-key-path: "${user.home}/keys/private_key_pkcs8.pem"
   public-key-path: "${user.home}/keys/public_key.pem"
+  cluster-keys:
+    gw: "super-secret-internal-only-cluster-key-for-gw"
+    users: "super-secret-internal-only-cluster-key-for-users"
+    txn: "super-secret-internal-only-cluster-key-for-txn"
+    admin: "super-secret-internal-only-cluster-key-for-admin"
 
 jwt:
-  secret: Temporary-key-for-dev-environment-only
   access:
     expiry: 300000 #5 minutes
   refresh:
@@ -19,3 +23,4 @@ jwt:
 
 internal:
   auth: false
+  token: false

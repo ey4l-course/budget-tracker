@@ -6,6 +6,7 @@ import com.budget.auth.client.TxnWarmupClient;
 import com.budget.auth.util.CustomAccessDeniedException;
 import com.budget.common.dto.*;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,9 @@ public class IdentityService {
     private final LoginClient loginClient;
     private final TxnWarmupClient warmupClient;
     private final IdentityUtil util;
+
+    @Value("${server.name}")
+    private String SERVICE;
 
     public IdentityService (
                             RegisterClient registerClient,
@@ -30,21 +34,22 @@ public class IdentityService {
     public FeignResponseDTO register (RegisterDto user){
         String hashedPassword = util.stringEncoder(user.getPassword());
         user.setPassword(hashedPassword);
-            ResponseEntity<FeignResponseDTO> res = registerClient.register("register", util.stringify(user));
-            return res.getBody();
+        String header = util.internalSignatureHandler(SERVICE);
+        ResponseEntity<FeignResponseDTO> res = registerClient.register("register", header, util.stringify(user));
+        return res.getBody();
     }
 
     public FeignResponseDTO login(LoginDto credentials,
                                   HttpServletRequest request) {
         SecurityLogDto log = new SecurityLogDto(credentials.getUsername(), util.passwordFP(credentials.getPassword()), null);
         request.setAttribute("securityLog", log);
-        InternalFeignDTO res = loginClient.login(credentials.getUsername()).getBody();
+        String header = util.internalSignatureHandler(SERVICE);
+        InternalFeignDTO res = loginClient.login(header, credentials.getUsername()).getBody();
         if (res == null)
             throw new RuntimeException("loginClient returned status 2xx but null body");
         if (!util.authHandler(res, credentials))
             throw new CustomAccessDeniedException("Password mismatch");
         record UserDetails (String name, String surname){};
-        String header = util.internalSignatureHandler(credentials.getUsername());
         warmupClient.warmup(header);
         return new FeignResponseDTO(new UserDetails(res.getGivenName(), res.getSurname()),
                 "Login successful",

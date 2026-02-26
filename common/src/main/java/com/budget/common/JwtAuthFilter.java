@@ -15,6 +15,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +26,11 @@ import java.io.IOException;
 import java.util.List;
 
 @Component
+@ConditionalOnProperty(
+        name = "internal.auth",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final SignatureHandlerUtil sig;
     private final LogUtil logger;
@@ -68,6 +74,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 if (currentUser != null) {
                     setSecurityContext(currentUser);
                     filterChain.doFilter(request, response);
+                    return;
                 }
             }
             String uuid = logger.securityLog(new SecurityLogDto(SERVICE, "", "Missing identifier"));

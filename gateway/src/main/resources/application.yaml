@@ -1,6 +1,7 @@
 #Gateway microservice
 server:
   port: ${server.gateway.port}
+  name: GW
 
 spring:
   config:
@@ -12,3 +13,9 @@ app:
 #      allowed-origins: []
       allowed-headers: ["Content-Type", "Cookie", "Accept", "Authorization"]
       exposed-headers: ["X-log-ID"]
+
+security:
+  cluster-key: "super-secret-internal-only-cluster-key-for-gw"
+
+internal:
+  auth: false

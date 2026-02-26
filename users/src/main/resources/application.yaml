@@ -1,5 +1,6 @@
 server:
   port: ${server.users.port}
+  name: USERS
 
 spring:
   config:

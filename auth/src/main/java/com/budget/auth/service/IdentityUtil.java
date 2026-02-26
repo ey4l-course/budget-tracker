@@ -44,7 +44,7 @@ public class IdentityUtil {
         return encoder.encode(raw);
     }
 
-    protected String passwordFP (String rawPassword){
+    public String passwordFP (String rawPassword){
         byte[] hash = sha256.digest((rawPassword + hashKey).getBytes(StandardCharsets.UTF_8));
         return HexFormat.of().formatHex(hash);
     }
@@ -67,10 +67,10 @@ public class IdentityUtil {
         }
     }
 
-    protected String internalSignatureHandler (String username) {
+    public String internalSignatureHandler (String serviceName) {
         try {
             Signature signature = Signature.getInstance("SHA256withRSA");
-            String payload = String.format("username=%s;timestamp=%s", username, System.currentTimeMillis());
+            String payload = String.format("serviceName=%s;timestamp=%s", serviceName, System.currentTimeMillis());
             signature.initSign(privateKey);
             signature.update(payload.getBytes());
             String sig = Base64.getEncoder().encodeToString(signature.sign());
