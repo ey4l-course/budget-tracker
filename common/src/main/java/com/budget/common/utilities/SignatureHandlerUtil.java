@@ -9,6 +9,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -34,6 +35,8 @@ public class SignatureHandlerUtil {
         SignatureVerificationDTO dto = parseHeader(header);
         PublicKey key = cachedKey.get();
         try {
+            if (System.currentTimeMillis() - dto.getTimeStamp() > 60000L)
+                throw new AccessDeniedException("Internal token expired");
             Signature sig = Signature.getInstance(("SHA256withRSA"));
             sig.initVerify(key);
             sig.update(dto.getPayload());
@@ -43,7 +46,7 @@ public class SignatureHandlerUtil {
                 getPublicKey();
                 signatureVerification(header, true);
             }
-            return dto.getUsername();
+            return dto.getService();
         } catch (InvalidKeyException | SignatureException | NoSuchAlgorithmException e){
             throw new CriticalIncidentException(e.getMessage(), e);
         }
@@ -77,9 +80,11 @@ public class SignatureHandlerUtil {
             throw new CustomSecurityException("Malformed Signature", "Internal", header);
         String payload = headerParts[0];
         String signature = headerParts[1];
-        String username = payload.split(";")[0].replace("username=", "");
+        String service = payload.split(";")[0].replace("serviceName=", "");
+        Long timestamp = Long.parseLong(payload.split(";")[1].replace("timestamp=", ""));
         return new SignatureVerificationDTO(
-                username,
+                service,
+                timestamp,
                 payload.getBytes(StandardCharsets.UTF_8),
                 Base64.getDecoder().decode(signature));
     }

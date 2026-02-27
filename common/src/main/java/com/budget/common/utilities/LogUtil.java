@@ -76,7 +76,7 @@ public class LogUtil {
         String uuid = uuidGenerator.generate().toString();
         Map<String, Object> logPayload = new HashMap<>();
         logPayload.put("uuid", uuid);
-        logPayload.put("username", sec.getUsername());
+        logPayload.put("service", sec.getUsername());
         logPayload.put("fingerPrint", sec.getFingerPrint());
         logPayload.put("message", sec.getMessage());
         logPayload.put("timeStamp", ISO_FORMAT.format(Instant.now()));

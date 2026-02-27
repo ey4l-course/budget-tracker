@@ -31,7 +31,7 @@ class LogUtilTest {
         request.setOutcome("Test outcome");
         request.setStatusCode(HttpStatus.BAD_REQUEST);
         request.setStatusMessage("Bad Request");
-        request.setPayload("{\"username\":\"test_user\"}");
+        request.setPayload("{\"service\":\"test_user\"}");
         request.setStartProcess(Instant.now());
         request.setEndProcess(Instant.now());
 

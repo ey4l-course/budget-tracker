@@ -1,5 +1,6 @@
 package com.budget.gateway.service;
 
+import com.budget.common.utilities.InternalTokenManager;
 import com.budget.gateway.client.CacheUsernamesClient;
 import jakarta.annotation.PostConstruct;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +18,14 @@ public class UsernameCacheService {
     private final Set<String> takenUsernames;
     private final Map<String, Instant> lockedUserNames;
     private final CacheUsernamesClient cacheClient;
+    private final InternalTokenManager tknMgr;
 
-    public UsernameCacheService (CacheUsernamesClient cacheClient){
+    public UsernameCacheService (CacheUsernamesClient cacheClient,
+                                 InternalTokenManager tknMgr){
         this.takenUsernames = ConcurrentHashMap.newKeySet();
         this.lockedUserNames = new ConcurrentHashMap<>();
         this.cacheClient = cacheClient;
+        this.tknMgr = tknMgr;
     }
     @PostConstruct
     private void init (){
@@ -34,6 +38,7 @@ public class UsernameCacheService {
 
     @Scheduled(fixedRate = 120000)
     protected void loadFromDb() {
+        String Internal = tknMgr.getToken();
         ResponseEntity<List<String>> res = cacheClient.getUsernames();
         if (res.getBody() != null) {
             takenUsernames.clear();

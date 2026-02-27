@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SignatureVerificationDTO {
-    String username;
+    String service;
+    Long timeStamp;
     byte[] payload;
     byte[] signature;
 }

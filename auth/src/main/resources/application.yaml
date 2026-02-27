@@ -7,13 +7,17 @@ spring:
     import: "classpath:/${APP_ENV:dev}.yaml"
 
 security:
+  fingerprint: Temporary-key-for-dev-environment-only #TODO: remove before prod
   private-key-path: "${user.home}/keys/private_key_pkcs8.pem"
   public-key-path: "${user.home}/keys/public_key.pem"
+  allowed-subnets:
+    1: 127.0.0.1/32
+    2: 192.168.1.0/24
   cluster-keys:
-    gw: "super-secret-internal-only-cluster-key-for-gw"
-    users: "super-secret-internal-only-cluster-key-for-users"
-    txn: "super-secret-internal-only-cluster-key-for-txn"
-    admin: "super-secret-internal-only-cluster-key-for-admin"
+    gw: "super-secret-internal-only-cluster-key-for-gw" #TODO: remove before prod
+    users: "super-secret-internal-only-cluster-key-for-users" #TODO: remove before prod
+    txn: "super-secret-internal-only-cluster-key-for-txn" #TODO: remove before prod
+    admin: "super-secret-internal-only-cluster-key-for-admin" #TODO: remove before prod
 
 jwt:
   access:

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient (name = "loginClient", url = "${routes.public}")
 public interface LoginClient {
-    @GetMapping(value = "/login/{username}")
+    @GetMapping(value = "/login/{service}")
     ResponseEntity<InternalFeignDTO> login(@RequestHeader("X-internal-Auth") String header,
-                                           @PathVariable("username") String username);
+                                           @PathVariable("service") String username);
 }

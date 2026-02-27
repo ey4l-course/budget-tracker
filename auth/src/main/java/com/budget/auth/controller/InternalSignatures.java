@@ -1,5 +1,6 @@
 package com.budget.auth.controller;
 
+import com.budget.auth.config.SecurityProperties;
 import com.budget.auth.service.IdentityUtil;
 import com.budget.auth.util.CustomAccessDeniedException;
 import com.budget.common.dto.SecretServiceDTO;
@@ -19,17 +20,16 @@ import java.util.Map;
 public class InternalSignatures {
     private final IdentityUtil idUtil;
     private final LogUtil logger;
-
-    @Value("#{${security.cluster-keys}}")
-    private Map<String, String> secrets;
-
-    @Value("#{${security.allowed-subnets}}")
+    private final Map<String, String> secrets;
     private Map<String, String> subnets;
 
     public InternalSignatures (IdentityUtil idUtil,
-                               LogUtil logger){
+                               LogUtil logger,
+                               SecurityProperties properties){
         this.idUtil = idUtil;
         this.logger = logger;
+        this.secrets = properties.getClusterKeys();
+        this.subnets = properties.getAllowedSubnets();
     }
 
     @PostMapping ("/sign-me")

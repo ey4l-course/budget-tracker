@@ -19,12 +19,12 @@ public class GatewayController {
     }
     //Public endpoints
 
-    @GetMapping("/check-username")
-    public void isUserNameAvailable (@RequestParam("username") String username,
+    @GetMapping("/check-service")
+    public void isUserNameAvailable (@RequestParam("service") String username,
                                                  HttpServletRequest request){
         RequestContextDTO contextDTO = contextHandler(request);
         contextDTO.setUserName(username);
-        ValidationDTO dto = new ValidationDTO("username", username, null);
+        ValidationDTO dto = new ValidationDTO("service", username, null);
         contextDTO.setMessage(dto);
         boolean res = service.checkUsernameAvailability(username);
         dto.setMessage(res ? "Username available" : "Username taken");
