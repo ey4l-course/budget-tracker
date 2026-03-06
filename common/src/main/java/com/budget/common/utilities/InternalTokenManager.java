@@ -24,11 +24,17 @@ public class InternalTokenManager {
     @Value("${server.name}")
     private String SERVICE;
 
-    private String current = token.get();
+    public String current = token.get();
 
     public String getToken (){
-        if (current != null || isTokenExpired())
-            newToken();
+        if (current == null || isTokenExpired())
+            synchronized (this) {
+                current = token.get();
+                if (current == null || isTokenExpired()) {
+                    newToken();
+                    current = token.get();
+                }
+            }
         return current;
     }
 

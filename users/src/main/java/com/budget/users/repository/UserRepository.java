@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class UserRepository {
@@ -24,13 +23,13 @@ public class UserRepository {
     }
 
     public List<String> getAllUsernames() {
-        String sql = String.format("SELECT service FROM %s", USERS);
+        String sql = String.format("SELECT username FROM %s", USERS);
         return jdbc.queryForList(sql, String.class);
     }
 
     public void register(RegisterDto user) {
         Integer addressId = insertAddress(user.getAddress());
-        String sql = String.format("INSERT INTO %s (service, password, given_name, surname, mobile, email, address_id)" +
+        String sql = String.format("INSERT INTO %s (username, password, given_name, surname, mobile, email, address_id)" +
                 " VALUES (?, ?, ?, ?, ?, ?, ?)", USERS);
         jdbc.update(sql, user.getUsername(), user.getPassword(), user.getGivenName(), user.getSurname(), user.getMobile(), user.getEmail(), addressId);
     }
@@ -53,7 +52,7 @@ public class UserRepository {
 
     public InternalFeignDTO login(String username) {
         try {
-            String sql = String.format("SELECT password, is_admin, given_name, surname FROM %s WHERE service = ?", USERS);
+            String sql = String.format("SELECT password, is_admin, given_name, surname FROM %s WHERE username = ?", USERS);
             return jdbc.queryForObject(sql, new LoginMapper(), username);
         }catch (EmptyResultDataAccessException e){
             throw new UserNotFoundException(username);

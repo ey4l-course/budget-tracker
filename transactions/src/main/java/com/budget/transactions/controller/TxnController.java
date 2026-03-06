@@ -12,8 +12,9 @@ public class TxnController {
     public TxnController(SignatureHandlerUtil sigUtil){ this.sigUtil = sigUtil; }
 
     @PostMapping("/warmup")
-    public void warmup(@RequestHeader("X-internal-Auth") String header){
-        String username = sigUtil.signatureVerification(header, false);
-        //TODO: txnUtil.warmup(service);
+    public void warmup(@RequestHeader("X-internal-Auth") String header,
+                       @RequestBody String username){
+        System.out.println("It's okay " + username);
+        //TODO: txnUtil.warmup(username);
     }
 }

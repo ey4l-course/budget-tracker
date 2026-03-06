@@ -35,7 +35,7 @@ public class IdentityService {
         String hashedPassword = util.stringEncoder(user.getPassword());
         user.setPassword(hashedPassword);
         String header = util.internalSignatureHandler(SERVICE);
-        ResponseEntity<FeignResponseDTO> res = registerClient.register("register", header, util.stringify(user));
+        ResponseEntity <FeignResponseDTO> res = registerClient.register("register", header, util.stringify(user));
         return res.getBody();
     }
 
@@ -49,8 +49,8 @@ public class IdentityService {
             throw new RuntimeException("loginClient returned status 2xx but null body");
         if (!util.authHandler(res, credentials))
             throw new CustomAccessDeniedException("Password mismatch");
-        record UserDetails (String name, String surname){};
-        warmupClient.warmup(header);
+        record UserDetails (String name, String surname){}
+        warmupClient.warmup(header, credentials.getUsername());
         return new FeignResponseDTO(new UserDetails(res.getGivenName(), res.getSurname()),
                 "Login successful",
                 "Auth",

@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/**", "/.well-known/**").permitAll()
+                        .requestMatchers("/public/**", "/.well-known/**", "/internal/sign-me/**").permitAll()
                         .anyRequest().denyAll());
         return http.build();
     }

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping ("/public")
 public class AuthController {
     private final IdentityService identityService;
     private final CookieUtil cookieUtil;

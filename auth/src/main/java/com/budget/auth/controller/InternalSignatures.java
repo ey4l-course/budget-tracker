@@ -8,7 +8,6 @@ import com.budget.common.dto.SecurityLogDto;
 import com.budget.common.exceptions.CriticalIncidentException;
 import com.budget.common.utilities.LogUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
 import org.springframework.web.bind.annotation.*;
@@ -21,23 +20,23 @@ public class InternalSignatures {
     private final IdentityUtil idUtil;
     private final LogUtil logger;
     private final Map<String, String> secrets;
-    private Map<String, String> subnets;
+    private final Map<String, String> subnets;
 
     public InternalSignatures (IdentityUtil idUtil,
                                LogUtil logger,
                                SecurityProperties properties){
         this.idUtil = idUtil;
         this.logger = logger;
-        this.secrets = properties.getClusterKeys();
         this.subnets = properties.getAllowedSubnets();
+        this.secrets = properties.getClusterKeys();
     }
 
     @PostMapping ("/sign-me")
     public ResponseEntity<String> secretService (@RequestHeader ("X-bootstrap-secret") String providedSecret,
-                                                 @RequestParam String whoIsIt,
+                                                 @RequestParam ("service") String whoIsIt,
                                                  HttpServletRequest request){
         try {
-            String expected = secrets.get(whoIsIt);
+            String expectedSecret = secrets.get(whoIsIt);
             String ip = request.getRemoteAddr();
 
             boolean isAllowedIp = subnets
@@ -47,7 +46,7 @@ public class InternalSignatures {
             if (!isAllowedIp)
                 throw new CustomAccessDeniedException(new SecurityLogDto(whoIsIt, idUtil.passwordFP(providedSecret), "Unknown host"));
 
-            if (expected != null && expected.equals(providedSecret)){
+            if (expectedSecret != null && expectedSecret.equals(providedSecret)){
                 String sig = idUtil.internalSignatureHandler(whoIsIt);
                 logger.secretService(
                         new SecretServiceDTO(
@@ -56,10 +55,9 @@ public class InternalSignatures {
                                 idUtil.passwordFP(sig)));
                 return ResponseEntity.ok(sig);
             }
-            throw new  CustomAccessDeniedException(new SecurityLogDto(whoIsIt, idUtil.passwordFP(providedSecret), "Invalid secret"));
+            throw new  CustomAccessDeniedException(new SecurityLogDto(whoIsIt, idUtil.passwordFP(providedSecret), "Invalid or missing secret"));
         }catch (CustomAccessDeniedException e){
             throw new CriticalIncidentException("Violation at secret service", e);
         }
-
     }
 }

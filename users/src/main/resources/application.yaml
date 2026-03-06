@@ -1,6 +1,9 @@
 server:
   port: ${server.users.port}
-  name: USERS
+  name: users
+
+security:
+  cluster-key: "super-secret-internal-only-cluster-key-for-users"
 
 spring:
   config:

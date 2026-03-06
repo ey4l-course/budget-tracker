@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(name = "secretService", url = "${routes.auth}/internal")
 public interface SecretService {
-    @PostMapping (value = "/sign-me/${SERVICE}")
+    @PostMapping (value = "/sign-me{SERVICE}")
     ResponseEntity<String> getSigned (@RequestHeader ("X-bootstrap-secret") String providedSecret,
                                       @RequestParam ("service") String SERVICE);
 }

@@ -35,7 +35,7 @@ public class SignatureHandlerUtil {
         SignatureVerificationDTO dto = parseHeader(header);
         PublicKey key = cachedKey.get();
         try {
-            if (System.currentTimeMillis() - dto.getTimeStamp() > 60000L)
+            if (System.currentTimeMillis() - dto.getTimeStamp() > 600000)
                 throw new AccessDeniedException("Internal token expired");
             Signature sig = Signature.getInstance(("SHA256withRSA"));
             sig.initVerify(key);

@@ -1,6 +1,9 @@
 server:
   port: ${server.transactions.port}
-  name: TXN
+  name: txn
+
+security:
+  cluster-key: "super-secret-internal-only-cluster-key-for-txn"
 
 spring:
   config:

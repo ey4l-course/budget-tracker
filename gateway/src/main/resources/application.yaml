@@ -1,7 +1,7 @@
 #Gateway microservice
 server:
   port: ${server.gateway.port}
-  name: GW
+  name: gw
 
 spring:
   config:
