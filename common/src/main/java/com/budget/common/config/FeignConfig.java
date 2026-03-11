@@ -2,9 +2,7 @@ package com.budget.common.config;
 
 import com.budget.common.utilities.InternalTokenManager;
 import feign.RequestInterceptor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 public class FeignConfig {
     private final InternalTokenManager tokenManager;

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/public")
+@RequestMapping
 public class PublicUserController {
     private final UserService service;
 
