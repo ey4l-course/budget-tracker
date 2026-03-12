@@ -13,7 +13,8 @@ public class LoginMapper implements RowMapper<InternalFeignDTO> {
                 rs.getString("password"),
                 rs.getBoolean("is_admin"),
                 rs.getString("given_name"),
-                rs.getString("surname")
+                rs.getString("surname"),
+                rs.getInt("id")
         );
     }
 }

@@ -12,4 +12,5 @@ public class InternalFeignDTO {
     private boolean admin;
     private String givenName;
     private String surname;
+    private int userID;
 }

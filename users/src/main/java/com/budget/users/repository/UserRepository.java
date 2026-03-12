@@ -52,7 +52,7 @@ public class UserRepository {
 
     public InternalFeignDTO login(String username) {
         try {
-            String sql = String.format("SELECT password, is_admin, given_name, surname FROM %s WHERE username = ?", USERS);
+            String sql = String.format("SELECT password, is_admin, given_name, surname, id FROM %s WHERE username = ?", USERS);
             return jdbc.queryForObject(sql, new LoginMapper(), username);
         }catch (EmptyResultDataAccessException e){
             throw new UserNotFoundException(username);

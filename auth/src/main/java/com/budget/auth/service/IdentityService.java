@@ -50,7 +50,7 @@ public class IdentityService {
         if (!util.authHandler(res, credentials))
             throw new CustomAccessDeniedException("Password mismatch");
         record UserDetails (String name, String surname){}
-        warmupClient.warmup(header, credentials.getUsername());
+        warmupClient.warmup(header, res.getUserID());
         return new FeignResponseDTO(new UserDetails(res.getGivenName(), res.getSurname()),
                 "Login successful",
                 "Auth",

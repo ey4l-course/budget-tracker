@@ -9,5 +9,5 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public interface TxnWarmupClient {
     @PostMapping("/txn/warmup")
     void warmup (@RequestHeader("X-internal-Auth") String header,
-                 @RequestBody String username);
+                 @RequestBody int userID);
 }
