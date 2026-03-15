@@ -1,62 +1,30 @@
 package com.budget.gateway.controller;
 
-import com.budget.common.dto.*;
-import com.budget.gateway.dto.ValidationDTO;
-import com.budget.gateway.service.GatewayPublicService;
-import jakarta.servlet.http.Cookie;
+import com.budget.common.dto.LogCategory;
+import com.budget.common.dto.RequestContextDTO;
+import com.budget.gateway.client.TxnClient;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/public")
+@RequestMapping("/app")
 public class GatewayController {
-    private final GatewayPublicService service;
+    private final TxnClient txnClient;
 
-    public GatewayController (GatewayPublicService service){
-        this.service = service;
-    }
-    //Public endpoints
+    public GatewayController (TxnClient txnClient){ this.txnClient = txnClient; }
 
-    @GetMapping("/check-username")
-    public void isUserNameAvailable (@RequestParam("username") String username,
-                                                 HttpServletRequest request){
+    @GetMapping ("/login")
+    @PreAuthorize("hasAnyAuthority('user', 'admin')")
+    public void login (HttpServletRequest request) {
+        System.out.println("request arrived");
         RequestContextDTO contextDTO = contextHandler(request);
-        contextDTO.setUserName(username);
-        ValidationDTO dto = new ValidationDTO("username", username, null);
-        contextDTO.setMessage(dto);
-        boolean res = service.checkUsernameAvailability(username);
-        dto.setMessage(res ? "Username available" : "Username taken");
-        markSuccess(contextDTO, HttpStatus.OK, dto);
-    }
-
-    @PostMapping("/register")
-    public void register (@RequestBody RegisterDto user,
-                                            HttpServletRequest request){
-        RequestContextDTO contextDTO = contextHandler(request);
-        contextDTO.setUserName(user.getUsername());
-        if (service.register(user).isSameCodeAs(HttpStatus.CREATED))
-            markSuccess(contextDTO, HttpStatus.CREATED, "User " + contextDTO.getUserName() + " successfully created");
-    }
-
-    @PostMapping("/login")
-    public void login (@RequestBody LoginDto login,
-                       HttpServletRequest request){
-        RequestContextDTO contextDTO = contextHandler(request);
-        contextDTO.setUserName(login.getUsername());
-        String res = service.login(login, contextDTO);
-        markSuccess(contextDTO, HttpStatus.OK, res);
-    }
-
-    @GetMapping("/test-cookies")
-    public void dummy (HttpServletRequest request) {
-        RequestContextDTO contextDTO = contextHandler(request);
-        Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies){
-            System.out.println(cookie.getValue());
-        }
-        markSuccess(contextDTO, HttpStatus.NO_CONTENT, "Test success");
+        String data = txnClient.getTxn();
+        markSuccess(contextDTO, HttpStatus.OK, data);
     }
 
     //Helper

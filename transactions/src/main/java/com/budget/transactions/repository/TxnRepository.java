@@ -11,11 +11,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public class TxnRepository {
@@ -27,25 +24,11 @@ public class TxnRepository {
         this.jdbc = jdbc;
     }
 
-    public Map<String, BigDecimal> warmup(int userId) throws IOException {
-        String sql = StreamUtils.copyToString(warmupQuery.getInputStream(), StandardCharsets.UTF_8);
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("userId", userId);
-        return jdbc.query(sql, params, rs -> {
-            Map<String, BigDecimal> totals = new HashMap<>();
-            while (rs.next()) {
-                totals.put(rs.getString("category"), rs.getBigDecimal("sub_total"));
-            }
-            return totals;
-        });
-    }
-
-    // Version 2
-    public List<TransactionDTO> newWarmup(int userId) {
+    public List<TransactionDTO> warmup(String username) {
         try {
             String sql = StreamUtils.copyToString(warmupQuery.getInputStream(), StandardCharsets.UTF_8);
             MapSqlParameterSource params = new MapSqlParameterSource()
-                    .addValue("userId", userId);
+                    .addValue("username", username);
             return jdbc.query(sql, params, (rs, rowNum) ->
                     new TransactionDTO(
                             rs.getLong("id"),

@@ -4,7 +4,7 @@ curl -v -i -X POST http://localhost:8080/public/register \
 -H "Content-Type: application/json" \
 -d '{
   "id": "123456782",
-  "username": "tester01",
+  "username": "'tester01'",
   "password": "Password123!",
   "givenName": "John",
   "surname": "Doe",
@@ -22,53 +22,59 @@ curl -v -i -X POST http://localhost:8080/public/register \
 
 login
 
-curl -v -i -X POST http://localhost:8080/public/login \
+LOGIN_RESPONSE=$(curl -v -i -X POST http://localhost:8080/public/login \
 -H "Content-Type: application/json" \
 -d '{
   "username": "tester01",
   "password": "Password123!"
-}'
+}')
+export TST_COOKIE=$(echo "$LOGIN_RESPONSE" | grep -Fi "Set-Cookie" | grep -o "access=[^;]*")
+echo "Stored Cookie: $TST_COOKIE"
+
+curl -v -i -X POST http://localhost:8080/app/login \
+-H "Content-Type: application/json" \
+-H "access": "$TST"
 
 curl -v -X POST "http://localhost:8080/dev/query/transactions" \
      -H "Content-Type: text/plain" \
-     -d "INSERT INTO transactions (user_id, name, amount, is_expense, default_category, user_defined_category, default_regular_interval) VALUES
-(4, 'Shufersal', 450.50, true, 'groceries', NULL, 0),
-(4, 'Paz', 280.00, true, 'vehicle', NULL, 0),
-(4, 'Technion', 5000.00, true, 'education', NULL, 12),
-(4, 'Electric Corp', 430.00, true, 'bills', NULL, 1),
-(4, 'El Al', 3500.00, true, 'trips', NULL, 0),
-(4, 'Salary', 12000.00, false, 'other', NULL, 1),
-(4, 'Rami Levy', 120.30, true, 'groceries', NULL, 0),
-(4, 'Sonol', 310.00, true, 'vehicle', NULL, 0),
-(4, 'Udemy', 45.00, true, 'education', NULL, 0),
-(4, 'Arnona', 1200.00, true, 'bills', NULL, 2),
-(4, 'Booking.com', 2200.00, true, 'trips', NULL, 0),
-(4, 'Victory', 150.20, true, 'groceries', NULL, 0),
-(4, 'Ten', 250.00, true, 'vehicle', NULL, 0),
-(4, 'Coursera', 180.00, true, 'education', NULL, 0),
-(4, 'Water Bill', 210.00, true, 'bills', NULL, 2),
-(4, 'Airbnb', 1800.00, true, 'trips', NULL, 0),
-(4, 'Tiv Taam', 600.00, true, 'groceries', NULL, 0),
-(4, 'Dor Alon', 110.00, true, 'vehicle', NULL, 0),
-(4, 'Book Store', 85.00, true, 'education', NULL, 0),
-(4, 'Cellcom', 99.00, true, 'bills', NULL, 1),
-(4, 'Hotel Rome', 4500.00, true, 'trips', NULL, 0),
-(4, 'Unknown Cafe', 45.00, true, 'other', 'groceries', 0),
-(4, 'Car Wash', 60.00, true, 'other', 'vehicle', 0),
-(4, 'Library Fee', 20.00, true, 'other', 'education', 0),
-(4, 'Tax Service', 300.00, true, 'other', 'bills', 0),
-(4, 'Passport Office', 250.00, true, 'other', 'trips', 0),
-(4, 'G-Station X', 90.00, true, 'other', NULL, 0),
-(4, 'G-Station Y', 110.00, true, 'other', NULL, 0),
-(4, 'Tuition', 6000.00, true, 'education', NULL, 12),
-(4, 'Bakery', 25.00, true, 'other', 'groceries', 0),
-(4, 'Garage Haifa', 1500.00, true, 'other', 'vehicle', 0),
-(4, 'Internet Fiber', 120.00, true, 'bills', NULL, 1),
-(4, 'Duty Free', 400.00, true, 'other', 'trips', 0),
-(4, 'Super-Pharm', 65.00, true, 'groceries', NULL, 0),
-(4, 'Health Plus', 90.00, true, 'other', 'groceries', 0),
-(4, 'University Sub', 15.00, true, 'education', NULL, 1),
-(4, 'Amazon AWS', 40.00, true, 'other', 'bills', 0),
-(4, 'Gas Bill', 180.00, true, 'bills', NULL, 1),
-(4, 'Refund', 120.00, false, 'other', NULL, 0),
-(4, 'Misc Shop', 15.00, true, 'other', NULL, 0);"
+     -d "INSERT INTO transactions (username, name, amount, is_expense, default_category, user_defined_category, default_regular_interval) VALUES
+('tester01', 'Shufersal', 450.50, true, 'groceries', NULL, 0),
+('tester01', 'Paz', 280.00, true, 'vehicle', NULL, 0),
+('tester01', 'Technion', 5000.00, true, 'education', NULL, 12),
+('tester01', 'Electric Corp', 430.00, true, 'bills', NULL, 1),
+('tester01', 'El Al', 3500.00, true, 'trips', NULL, 0),
+('tester01', 'Salary', 12000.00, false, 'other', NULL, 1),
+('tester01', 'Rami Levy', 120.30, true, 'groceries', NULL, 0),
+('tester01', 'Sonol', 310.00, true, 'vehicle', NULL, 0),
+('tester01', 'Udemy', 45.00, true, 'education', NULL, 0),
+('tester01', 'Arnona', 1200.00, true, 'bills', NULL, 2),
+('tester01', 'Booking.com', 2200.00, true, 'trips', NULL, 0),
+('tester01', 'Victory', 150.20, true, 'groceries', NULL, 0),
+('tester01', 'Ten', 250.00, true, 'vehicle', NULL, 0),
+('tester01', 'Coursera', 180.00, true, 'education', NULL, 0),
+('tester01', 'Water Bill', 210.00, true, 'bills', NULL, 2),
+('tester01', 'Airbnb', 1800.00, true, 'trips', NULL, 0),
+('tester01', 'Tiv Taam', 600.00, true, 'groceries', NULL, 0),
+('tester01', 'Dor Alon', 110.00, true, 'vehicle', NULL, 0),
+('tester01', 'Book Store', 85.00, true, 'education', NULL, 0),
+('tester01', 'Cellcom', 99.00, true, 'bills', NULL, 1),
+('tester01', 'Hotel Rome', 4500.00, true, 'trips', NULL, 0),
+('tester01', 'Unknown Cafe', 45.00, true, 'other', 'groceries', 0),
+('tester01', 'Car Wash', 60.00, true, 'other', 'vehicle', 0),
+('tester01', 'Library Fee', 20.00, true, 'other', 'education', 0),
+('tester01', 'Tax Service', 300.00, true, 'other', 'bills', 0),
+('tester01', 'Passport Office', 250.00, true, 'other', 'trips', 0),
+('tester01', 'G-Station X', 90.00, true, 'other', NULL, 0),
+('tester01', 'G-Station Y', 110.00, true, 'other', NULL, 0),
+('tester01', 'Tuition', 6000.00, true, 'education', NULL, 12),
+('tester01', 'Bakery', 25.00, true, 'other', 'groceries', 0),
+('tester01', 'Garage Haifa', 1500.00, true, 'other', 'vehicle', 0),
+('tester01', 'Internet Fiber', 120.00, true, 'bills', NULL, 1),
+('tester01', 'Duty Free', 400.00, true, 'other', 'trips', 0),
+('tester01', 'Super-Pharm', 65.00, true, 'groceries', NULL, 0),
+('tester01', 'Health Plus', 90.00, true, 'other', 'groceries', 0),
+('tester01', 'University Sub', 15.00, true, 'education', NULL, 1),
+('tester01', 'Amazon AWS', 40.00, true, 'other', 'bills', 0),
+('tester01', 'Gas Bill', 180.00, true, 'bills', NULL, 1),
+('tester01', 'Refund', 120.00, false, 'other', NULL, 0),
+('tester01', 'Misc Shop', 15.00, true, 'other', NULL, 0);"

@@ -25,9 +25,8 @@ public class GlobalSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("admin")
-                        .requestMatchers("/internal/**").hasAuthority("app")
+                        .requestMatchers("/internal/**", "/dev/**").hasAuthority("app")
                         .anyRequest().hasAnyAuthority("user", "admin", "app"))
                 .addFilterBefore(jwt, UsernamePasswordAuthenticationFilter.class);
         http.headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));

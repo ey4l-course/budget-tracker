@@ -11,19 +11,19 @@ CREATE INDEX idx_global_name ON global_categorization (name);
 -- User Preferences
 CREATE TABLE user_profile (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    username VARCHAR(50) NOT NULL,
     merchant_name VARCHAR(30) NOT NULL,
     category VARCHAR(20) NOT NULL,
 regular_interval INT DEFAULT 0
 );
-CREATE UNIQUE INDEX uq_user_merchant ON user_profile (user_id, merchant_name);
+CREATE UNIQUE INDEX uq_user_merchant ON user_profile (username, merchant_name);
 
 -- The Ledger
 CREATE TABLE transactions (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     parent_id BIGINT default null,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    user_id INT NOT NULL,
+    username VARCHAR(50) NOT NULL,
     name VARCHAR(30) NOT NULL,
     amount DECIMAL(19,4) NOT NULL,
     is_split BOOLEAN DEFAULT false,
@@ -35,5 +35,5 @@ CREATE TABLE transactions (
     is_expense BOOLEAN,
     system_flag INT DEFAULT 0
 );
-CREATE INDEX idx_txn_user ON transactions (user_id);
+CREATE INDEX idx_txn_user ON transactions (username);
 CREATE INDEX idx_txn_name ON transactions (name);

@@ -6,7 +6,6 @@ import com.budget.transactions.model.TransactionResponseDTO;
 import com.budget.transactions.repository.TxnRepository;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -22,8 +21,8 @@ public class TxnService {
         this.formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     }
 
-    public List<CategoryDTO> warmup (int userID) {
-        List<TransactionDTO> rs = repo.newWarmup(userID);
+    public List<CategoryDTO> warmup (String username) {
+        List<TransactionDTO> rs = repo.warmup(username);
         List<CategoryDTO> result = new ArrayList<>();
         if (rs.isEmpty()) return result;
 
