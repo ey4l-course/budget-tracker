@@ -82,7 +82,9 @@ public class ContextInitUtil extends OncePerRequestFilter {
             if (!response.isCommitted()){
                 try{
                     response.setStatus(dto.getStatusCode().value());
-                    if (dto.getMessage() != null) {
+                    if (dto.getPayload() != null){
+                        response.getWriter().write(mapper.writeValueAsString(dto.getPayload()));
+                    } else if (dto.getMessage() != null) {
                         response.getWriter().write(mapper.writeValueAsString(dto.getMessage()));
                     } else {
                         response.getWriter().write("{}");

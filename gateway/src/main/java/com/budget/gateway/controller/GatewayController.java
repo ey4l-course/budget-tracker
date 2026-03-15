@@ -24,7 +24,8 @@ public class GatewayController {
         System.out.println("request arrived");
         RequestContextDTO contextDTO = contextHandler(request);
         String data = txnClient.getTxn();
-        markSuccess(contextDTO, HttpStatus.OK, data);
+        contextDTO.setPayload(data);
+        markSuccess(contextDTO, HttpStatus.OK, "user profile successfully loaded");
     }
 
     //Helper

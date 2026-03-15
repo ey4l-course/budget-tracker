@@ -31,9 +31,9 @@ LOGIN_RESPONSE=$(curl -v -i -X POST http://localhost:8080/public/login \
 export TST_COOKIE=$(echo "$LOGIN_RESPONSE" | grep -Fi "Set-Cookie" | grep -o "access=[^;]*")
 echo "Stored Cookie: $TST_COOKIE"
 
-curl -v -i -X POST http://localhost:8080/app/login \
+curl -v -i -X GET http://localhost:8080/app/login \
 -H "Content-Type: application/json" \
--H "access": "$TST"
+-H "Cookie: $TST_COOKIE"
 
 curl -v -X POST "http://localhost:8080/dev/query/transactions" \
      -H "Content-Type: text/plain" \
