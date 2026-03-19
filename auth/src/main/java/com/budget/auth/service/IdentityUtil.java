@@ -1,7 +1,7 @@
 package com.budget.auth.service;
 
 import com.budget.auth.util.JwtUtil;
-import com.budget.common.dto.InternalFeignDTO;
+import com.budget.common.dto.FeignLoginDTO;
 import com.budget.common.dto.LoginDto;
 import com.budget.common.exceptions.CriticalIncidentException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -57,7 +57,7 @@ public class IdentityUtil {
         }
     }
 
-    protected boolean authHandler (InternalFeignDTO dto, LoginDto credentials){
+    protected boolean authHandler (FeignLoginDTO dto, LoginDto credentials){
         if (encoder.matches(credentials.getPassword(), dto.getMsg())) {
             credentials.setAccess(jwt.generateAccessToken(credentials.getUsername(), dto.isAdmin() ? "admin" : "user"));
             credentials.setRefresh(jwt.generateRefreshToken(credentials.getUsername(), dto.isAdmin() ? "admin" : "user"));

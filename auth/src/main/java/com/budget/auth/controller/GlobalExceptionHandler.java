@@ -1,7 +1,7 @@
 package com.budget.auth.controller;
 
 import com.budget.auth.util.CustomAccessDeniedException;
-import com.budget.common.dto.FeignResponseDTO;
+import com.budget.common.dto.FeignRegisterDTO;
 import com.budget.common.dto.SecurityLogDto;
 import com.budget.common.exceptions.CriticalIncidentException;
 import com.budget.common.utilities.LogUtil;
@@ -22,51 +22,51 @@ public class GlobalExceptionHandler {
     //Propagate to GW
     @ExceptionHandler(FeignException.Conflict.class)
     public ResponseEntity<String> userExistsHandler (FeignException.Conflict e){
-        return ResponseEntity.status(409).body(e.contentUTF8());
+        return ResponseEntity.status(400).body(e.contentUTF8());
     }
 
     @ExceptionHandler(FeignException.Unauthorized.class)
-    public  ResponseEntity<FeignResponseDTO> userNotFoundHandler (FeignException.Unauthorized e,
+    public  ResponseEntity<String> userNotFoundHandler (FeignException.Unauthorized e,
                                                                   HttpServletRequest request){
         SecurityLogDto dto = (SecurityLogDto) request.getAttribute("securityLog");
         dto.setMessage(e.contentUTF8());
         String uuid = logger.securityLog(dto);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new FeignResponseDTO(uuid,"Auth"));
+        return ResponseEntity.status(401).body(uuid);
     }
 
     @ExceptionHandler(CustomAccessDeniedException.class)
-    public ResponseEntity<FeignResponseDTO> passwordMismatchHandler (CustomAccessDeniedException e,
+    public ResponseEntity<String> passwordMismatchHandler (CustomAccessDeniedException e,
                                                                      HttpServletRequest request){
         SecurityLogDto dto = (SecurityLogDto) request.getAttribute("securityLog");
         dto.setMessage(e.getPayload().toString());
         String uuid = logger.securityLog(dto);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new FeignResponseDTO(uuid,"Auth"));
+        return ResponseEntity.status(401).body(uuid);
     }
 
     //Propagate to GW
     @ExceptionHandler(FeignException.class)
     public ResponseEntity<?> unexpectedDownstreamException (FeignException e){
-        if (e.status() == 0){
+        System.out.println(e.status());
+        System.out.println(e.toString());
+        if (e.status() < 100){
             String uuid = logger.internalErrorLog(e);
-            return ResponseEntity.status(503).body(new FeignResponseDTO(uuid, "Auth"));
+            return ResponseEntity.status(503).body(uuid);
         }
         return ResponseEntity.status(e.status()).body(e.contentUTF8());
     }
 
     @ExceptionHandler(CriticalIncidentException.class)
-    public ResponseEntity<FeignResponseDTO> criticalHandler (CriticalIncidentException e){
+    public ResponseEntity<String> criticalHandler (CriticalIncidentException e){
         //Trigger SMS/mail broker
         String uuid = logger.internalErrorLog(e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new FeignResponseDTO(uuid, "AUTH"));
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(uuid);
     }
 
     //Unpredicted exception. Logs full trace and sends uuid upstream
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<FeignResponseDTO> unexpectedErrors (Exception e){
-        System.out.println(e.getMessage() + "Exception thrown");
+    public ResponseEntity<String> unexpectedErrors (Exception e){
         String uuid = logger.internalErrorLog(e);
-        FeignResponseDTO res = new FeignResponseDTO(uuid, "Auth");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(res);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(uuid);
     }
 }
 

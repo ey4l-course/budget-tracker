@@ -15,19 +15,19 @@ public class ValidatorsUtil {
 
     public void validateRegistrationData (RegisterDto user) {
         if (user.getId() == null || user.getId().isEmpty() || !idChecksum(user.getId()))
-            throw new IllegalArgumentException("Invalid or missing ID");
+            throw new IllegalArgumentException("{\"message\":\"Invalid or missing ID\"}");
         if (isUsernameInvalid(user.getUsername()))
-            throw new IllegalArgumentException("User name must contain letters, digits or ._-$^~");
+            throw new IllegalArgumentException("{\"message\":\"User name must contain letters, digits or ._-$^~\"}");
         if (user.getPassword() == null || user.getPassword().isEmpty() || !validPassword.matcher(user.getPassword()).matches())
-            throw new IllegalArgumentException("Password must be 8-20 characters long and contain at least 1 upper case, 1 lower case, 1 digit and 1 symbol (-!@#$%^&*()_./)");
+            throw new IllegalArgumentException("{\"message\":\"Password must be 8-20 characters long and contain at least 1 upper case, 1 lower case, 1 digit and 1 symbol (-!@#$%^&*()_./)\"}");
         if (user.getGivenName() == null || user.getGivenName().isEmpty() || !validName.matcher(user.getGivenName()).matches())
-            throw new IllegalArgumentException("Given name must be 3-20 character length, may include additional name separated by single space and cannot be blank");
+            throw new IllegalArgumentException("{\"message\":\"Given name must be 3-20 character length, may include additional name separated by single space and cannot be blank\"}");
         if (user.getSurname() == null || user.getSurname().isEmpty() || !validName.matcher(user.getSurname()).matches())
-            throw new IllegalArgumentException("Surname must be 3-20 character length, may include additional name separated by single space and cannot be blank");
+            throw new IllegalArgumentException("{\"message\":\"Surname must be 3-20 character length, may include additional name separated by single space and cannot be blank\"}");
         if (user.getEmail() == null || user.getEmail().isEmpty() || !validEmail.matcher(user.getEmail()).matches())
-            throw new IllegalArgumentException("Invalid E-mail address");
+            throw new IllegalArgumentException("{\"message\":\"Invalid E-mail address\"}");
         if (user.getMobile() == null || user.getMobile().isEmpty() || !validMobile.matcher(user.getMobile()).matches())
-            throw new IllegalArgumentException("Mobile must be 10-15 digit long, may include state prefix without + or separators");
+            throw new IllegalArgumentException("{\"message\":\"Mobile must be 10-15 digit long, may include state prefix without + or separators\"}");
     }
 
     public boolean isUsernameInvalid(String username){

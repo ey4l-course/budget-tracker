@@ -22,6 +22,13 @@ curl -v -i -X POST http://localhost:8080/public/register \
 
 login
 
+curl -i -X POST http://localhost:8080/public/login \
+-H "Content-Type: application/json" \
+-d '{
+  "username": "tester01",
+  "password": "Password123!"
+}'
+
 LOGIN_RESPONSE=$(curl -v -i -X POST http://localhost:8080/public/login \
 -H "Content-Type: application/json" \
 -d '{

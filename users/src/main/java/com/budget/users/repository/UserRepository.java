@@ -1,9 +1,10 @@
 package com.budget.users.repository;
 
-import com.budget.common.dto.InternalFeignDTO;
+import com.budget.common.dto.FeignLoginDTO;
 import com.budget.common.dto.RegisterDto;
 import com.budget.users.repository.mapper.LoginMapper;
 import com.budget.users.util.UserNotFoundException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -28,10 +29,15 @@ public class UserRepository {
     }
 
     public void register(RegisterDto user) {
-        Integer addressId = insertAddress(user.getAddress());
-        String sql = String.format("INSERT INTO %s (username, password, given_name, surname, mobile, email, address_id)" +
-                " VALUES (?, ?, ?, ?, ?, ?, ?)", USERS);
-        jdbc.update(sql, user.getUsername(), user.getPassword(), user.getGivenName(), user.getSurname(), user.getMobile(), user.getEmail(), addressId);
+        try {
+            Integer addressId = insertAddress(user.getAddress());
+            String sql = String.format("INSERT INTO %s (username, password, given_name, surname, mobile, email, address_id)" +
+                    " VALUES (?, ?, ?, ?, ?, ?, ?)", USERS);
+            jdbc.update(sql, user.getUsername(), user.getPassword(), user.getGivenName(), user.getSurname(), user.getMobile(), user.getEmail(), addressId);
+        }catch (DuplicateKeyException e){
+            throw new DuplicateKeyException(user.getUsername());
+        }
+
     }
 
     private Integer insertAddress (RegisterDto.Address address){
@@ -50,7 +56,7 @@ public class UserRepository {
         return key.getKeyAs(Integer.class);
     }
 
-    public InternalFeignDTO login(String username) {
+    public FeignLoginDTO login(String username) {
         try {
             String sql = String.format("SELECT password, is_admin, given_name, surname FROM %s WHERE username = ?", USERS);
             return jdbc.queryForObject(sql, new LoginMapper(), username);

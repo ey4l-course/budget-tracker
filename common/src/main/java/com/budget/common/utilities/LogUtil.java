@@ -60,8 +60,6 @@ public class LogUtil {
             logPayload.put("debug",  parser.ExceptionParser(request.getDebug()));
         if (request.getSource() != null)
             logPayload.put("sourceService", request.getSource());
-        if (!"GET".equals(request.getMethod()))
-            logPayload.put("payload", request.getPayload());
         logger.info("request-log", StructuredArguments.entries(logPayload));
         return uuid;
     }

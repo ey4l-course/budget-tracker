@@ -2,7 +2,8 @@ package com.budget.auth.controller;
 
 import com.budget.auth.service.IdentityService;
 import com.budget.auth.util.CookieUtil;
-import com.budget.common.dto.FeignResponseDTO;
+import com.budget.common.dto.FeignLoginDTO;
+import com.budget.common.dto.FeignRegisterDTO;
 import com.budget.common.dto.LoginDto;
 import com.budget.common.dto.RegisterDto;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,15 +25,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<FeignResponseDTO> register (@RequestBody RegisterDto user){
-        FeignResponseDTO res = identityService.register(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(res);
+    public ResponseEntity<FeignRegisterDTO> register (@RequestBody RegisterDto user){
+        return ResponseEntity.status(HttpStatus.CREATED).body(identityService.register(user));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login (@RequestBody LoginDto credentials,
-                                    HttpServletRequest request){
-        FeignResponseDTO res = identityService.login(credentials, request);
+    public ResponseEntity<FeignLoginDTO> login (@RequestBody LoginDto credentials,
+                                                   HttpServletRequest request){
+        FeignLoginDTO res = identityService.login(credentials, request);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookieUtil.addAccessCookie(credentials.getAccess()))
                 .header(HttpHeaders.SET_COOKIE, cookieUtil.addRefreshCookie(credentials.getRefresh()))

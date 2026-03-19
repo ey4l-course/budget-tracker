@@ -2,6 +2,7 @@ package com.budget.gateway.service;
 
 import com.budget.common.dto.*;
 import com.budget.gateway.client.PublicUserClient;
+import com.budget.gateway.dto.ValidationDTO;
 import com.budget.gateway.util.ValidatorsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +10,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class GatewayPublicService {
@@ -26,33 +30,32 @@ public class GatewayPublicService {
         this.validators = validators;
     }
 
-    public boolean checkUsernameAvailability (String userName) {
-        if (validators.isUsernameInvalid(userName))
-            throw new IllegalArgumentException("User name must contain letters, digits or ._-$^~");
-        return cacheService.tryReserve(userName);
+    public String checkUsernameAvailability (String userName) {
+        ValidationDTO dto = new ValidationDTO("username", userName, validators.isUsernameInvalid(userName)
+                ? "User name must contain letters, digits or ._-$^~"
+                : null);
+        if (dto.getMessage() != null)
+            throw new IllegalArgumentException(stringify(dto));
+        dto.setMessage(cacheService.tryReserve(userName) ? "userName available" : "username taken");
+        return stringify(dto);
     }
 
-    public HttpStatusCode register(RegisterDto user) {
+    public String register(RegisterDto user) {
         validators.validateRegistrationData(user);
-        ResponseEntity<FeignResponseDTO> result = publicUserClient.forward("register", stringify(user));
+        ResponseEntity<String> result = publicUserClient.forward("register", stringify(user));
         cacheService.confirmRegistration(user.getUsername());
-        return result.getStatusCode();
+        return result.getBody();
     }
 
     public String login(LoginDto login,
                                                   RequestContextDTO contextDTO) {
-        ResponseEntity<FeignResponseDTO> res = publicUserClient.forward("login", stringify(login));
-        FeignResponseDTO authDto = res.getBody();
+        ResponseEntity<String> res = publicUserClient.forward("login", stringify(login));
         if (res.getHeaders().get(HttpHeaders.SET_COOKIE) == null)
             throw new RuntimeException("No cookies found");
-        if (authDto.isFlag())
-            contextDTO.setCategory(LogCategory.ADMIN);
         contextDTO.setCookies(res.getHeaders().get(HttpHeaders.SET_COOKIE));
-        try {
-            return mapper.writeValueAsString(authDto.getBody());
-        }catch (JsonProcessingException e){
-            throw new RuntimeException("Unable to parse JSON");
-        }
+        if (res.getHeaders().containsKey("X-flag"))
+            contextDTO.setCategory(LogCategory.ADMIN);
+        return res.getBody();
     }
 
     private String stringify(Object obj){

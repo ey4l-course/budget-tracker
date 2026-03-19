@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class InternalFeignDTO {
+public class FeignLoginDTO {
     private String msg;
     private boolean admin;
     private String givenName;

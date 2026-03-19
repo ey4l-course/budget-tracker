@@ -21,7 +21,6 @@ public class GatewayController {
     @GetMapping ("/login")
     @PreAuthorize("hasAnyAuthority('user', 'admin')")
     public void login (HttpServletRequest request) {
-        System.out.println("request arrived");
         RequestContextDTO contextDTO = contextHandler(request);
         String data = txnClient.getTxn();
         contextDTO.setPayload(data);
@@ -39,7 +38,7 @@ public class GatewayController {
 
     private void markSuccess(RequestContextDTO contextDTO,
                              HttpStatusCode statusCode,
-                             Object successMsg){
+                             String successMsg){
         contextDTO.setOutcome("[SUCCESS]");
         if (contextDTO.getCategory() == null)
             contextDTO.setCategory(LogCategory.OPERATION);

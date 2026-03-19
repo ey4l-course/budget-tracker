@@ -9,9 +9,8 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
 @RequiredArgsConstructor
-public class FeignResponseDTO {
-    private Object body;
+public class FeignRegisterDTO {
+    private String user;
     private final String msg;
     private final String source;
-    boolean flag = false;
 }

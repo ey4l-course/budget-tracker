@@ -1,9 +1,8 @@
 package com.budget.gateway.controller;
 
-import com.budget.common.dto.FeignResponseDTO;
+import com.budget.common.dto.FeignRegisterDTO;
 import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RequestContextDTO;
-import com.budget.gateway.dto.ValidationDTO;
 import com.budget.gateway.service.UsernameCacheService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,39 +31,31 @@ public class GlobalExceptionHandler {
         RequestContextDTO contextDTO = contextHandler(request);
         contextDTO.setCategory(LogCategory.USER_ERROR);
         contextDTO.setStatusCode(HttpStatus.BAD_REQUEST);
-        contextDTO.setDebug(e);
-        if (contextDTO.getMessage() != null) {
-            ValidationDTO dto = (ValidationDTO) contextDTO.getMessage();
-            dto.setMessage(e.getMessage());
-        }else {
-            contextDTO.setMessage(e.getMessage());
-        }
+        contextDTO.setMessage(e.getMessage());
         contextDTO.setOutcome("[REJECTED]");
     }
 
-    @ExceptionHandler(FeignException.Conflict.class)
-    public void usernameTakenHandler (FeignException.Conflict e,
-                                      HttpServletRequest request) {
+    @ExceptionHandler (FeignException.BadRequest.class)
+    public void FeignValidationHandler (FeignException.BadRequest e,
+                                        HttpServletRequest request){
         RequestContextDTO contextDTO = contextHandler(request);
-        cacheService.confirmRegistration(contextDTO.getUserName());
-        throw new IllegalArgumentException(String.format("Username %s already taken", contextDTO.getUserName()));
+        contextDTO.setCategory(LogCategory.USER_ERROR);
+        contextDTO.setStatusCode(HttpStatus.BAD_REQUEST);
+        contextDTO.setMessage(e.contentUTF8());
+        contextDTO.setOutcome("[REJECTED]");
     }
 
     @ExceptionHandler(FeignException.Unauthorized.class)
     public void downStreamSecurityHandler (FeignException.Unauthorized e,
                                            HttpServletRequest request){
          RequestContextDTO contextDTO = contextHandler(request);
-         contextDTO.setMessage("Bad credentials");
+         contextDTO.setMessage(e.getMessage());
+         contextDTO.setPayload("Bad credentials");
+         contextDTO.setSource(e.request().url().split("/")[2]);
          contextDTO.setStatusCode(HttpStatus.valueOf(e.status()));
          contextDTO.setCategory(LogCategory.SECURITY);
-         try {
-             FeignResponseDTO res = mapper.readValue(e.contentUTF8(), FeignResponseDTO.class);
-             contextDTO.setUuid(res.getMsg());
-             contextDTO.setSource(res.getSource());
-         }catch (JsonProcessingException parseError){
-             contextDTO.setDebug(parseError);
-             contextDTO.setUuid("9ece7ebd448810b3ab4b61510ed29378");
-         }
+         contextDTO.setDebug(e);
+         contextDTO.setUuid(e.contentUTF8());
          contextDTO.setOutcome("[REJECTED]");
     }
 
@@ -72,16 +63,16 @@ public class GlobalExceptionHandler {
     public void networkErrorHandler (FeignException.ServiceUnavailable e,
                                      HttpServletRequest request){
         RequestContextDTO contextDTO = contextHandler(request);
-        String body = e.contentUTF8();
-        unexpectedHandler(e, contextDTO, body);
+        contextDTO.setMessage("Downstream service is down");
+        unexpectedHandler(e, contextDTO);
     }
 
     @ExceptionHandler(FeignException.InternalServerError.class)
     public void unexpectedDownstreamException (FeignException.InternalServerError e,
                                                HttpServletRequest request){
         RequestContextDTO contextDTO = contextHandler(request);
-        String body = e.contentUTF8();
-        unexpectedHandler(e, contextDTO, body);
+        contextDTO.setMessage("Downstream service threw Exception");
+        unexpectedHandler(e, contextDTO);
     }
 
     //GW unexpected errors handler
@@ -92,23 +83,17 @@ public class GlobalExceptionHandler {
         contextDTO.setCategory(LogCategory.UNEXPECTED_ERROR);
         contextDTO.setDebug(e);
         contextDTO.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-        contextDTO.setMessage("Internal server error");
+        contextDTO.setPayload("Internal server error");
         contextDTO.setOutcome("[FAILURE]");
     }
 
     //Downstream 500 or network errors handler
-    private void unexpectedHandler (Exception e, RequestContextDTO contextDTO, String body){
-        try {
-            FeignResponseDTO res = mapper.readValue(body, FeignResponseDTO.class);
-            contextDTO.setUuid(res.getMsg());
-            contextDTO.setSource(res.getSource());
-        }catch (JsonProcessingException parseError){
-            contextDTO.setDebug(e);
-            contextDTO.setUuid("499c5ed3b3ec57542b67466ba3e44c06");
-        }
+    private void unexpectedHandler (FeignException e, RequestContextDTO contextDTO){
+        contextDTO.setPayload("Internal server error");
+        contextDTO.setUuid(e.contentUTF8());
+        contextDTO.setSource(e.request().url().split("/")[2]);
         contextDTO.setCategory(LogCategory.INTERNAL);
         contextDTO.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-        contextDTO.setMessage("Internal server error");
         contextDTO.setOutcome("[FAILURE]");
     }
 

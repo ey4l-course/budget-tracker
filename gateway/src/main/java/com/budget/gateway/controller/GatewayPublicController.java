@@ -23,11 +23,8 @@ public class GatewayPublicController {
                                                  HttpServletRequest request){
         RequestContextDTO contextDTO = contextHandler(request);
         contextDTO.setUserName(username);
-        ValidationDTO dto = new ValidationDTO("username", username, null);
-        contextDTO.setMessage(dto);
-        boolean res = service.checkUsernameAvailability(username);
-        dto.setMessage(res ? "Username available" : "Username taken");
-        markSuccess(contextDTO, HttpStatus.OK, dto);
+        String res = service.checkUsernameAvailability(username);
+        markSuccess(contextDTO, HttpStatus.OK, res);
     }
 
     @PostMapping("/register")
@@ -35,8 +32,7 @@ public class GatewayPublicController {
                                             HttpServletRequest request){
         RequestContextDTO contextDTO = contextHandler(request);
         contextDTO.setUserName(user.getUsername());
-        if (service.register(user).isSameCodeAs(HttpStatus.CREATED))
-            markSuccess(contextDTO, HttpStatus.CREATED, "User " + contextDTO.getUserName() + " successfully created");
+        markSuccess(contextDTO, HttpStatus.CREATED, service.register(user));
     }
 
     @PostMapping("/login")
@@ -44,8 +40,7 @@ public class GatewayPublicController {
                        HttpServletRequest request){
         RequestContextDTO contextDTO = contextHandler(request);
         contextDTO.setUserName(login.getUsername());
-        String res = service.login(login, contextDTO);
-        markSuccess(contextDTO, HttpStatus.OK, res);
+        markSuccess(contextDTO, HttpStatus.OK, service.login(login, contextDTO));
     }
 
     //Helper
@@ -59,11 +54,12 @@ public class GatewayPublicController {
 
     private void markSuccess(RequestContextDTO contextDTO,
                              HttpStatusCode statusCode,
-                             Object successMsg){
+                             String successMsg){
         contextDTO.setOutcome("[SUCCESS]");
         if (contextDTO.getCategory() == null)
             contextDTO.setCategory(LogCategory.OPERATION);
         contextDTO.setStatusCode(statusCode);
         contextDTO.setMessage(successMsg);
+        contextDTO.setPayload(successMsg);
     }
 }

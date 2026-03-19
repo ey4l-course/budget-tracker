@@ -1,7 +1,7 @@
 package com.budget.common;
 
 import com.budget.common.dto.AuthenticatedDTO;
-import com.budget.common.dto.FeignResponseDTO;
+import com.budget.common.dto.FeignRegisterDTO;
 import com.budget.common.dto.SecurityLogDto;
 import com.budget.common.exceptions.CriticalIncidentException;
 import com.budget.common.exceptions.CustomSecurityException;
@@ -79,24 +79,24 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
             String uuid = logger.securityLog(new SecurityLogDto(SERVICE, "", "Missing identifier"));
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write(mapper.writeValueAsString(new FeignResponseDTO(uuid, SERVICE)));
+            response.getWriter().write(mapper.writeValueAsString(new FeignRegisterDTO(uuid, SERVICE)));
             return;
         }catch (ExpiredJwtException e){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write(mapper.writeValueAsString(new FeignResponseDTO("token expired", SERVICE)));
+            response.getWriter().write(mapper.writeValueAsString(new FeignRegisterDTO("token expired", SERVICE)));
         }catch (CustomSecurityException e){
             String uuid = logger.securityLog(new SecurityLogDto(SERVICE,
                     e.getFaultyToken(),
                     e.getMessage()
                     ));
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write(mapper.writeValueAsString(new FeignResponseDTO(uuid, SERVICE)));
+            response.getWriter().write(mapper.writeValueAsString(new FeignRegisterDTO(uuid, SERVICE)));
             return;
         }catch (CriticalIncidentException e){
             String uuid = logger.internalErrorLog(e);
             response.setHeader("severity", "fatal");
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write(mapper.writeValueAsString(new FeignResponseDTO(uuid, SERVICE)));
+            response.getWriter().write(mapper.writeValueAsString(new FeignRegisterDTO(uuid, SERVICE)));
             return;
         }
 

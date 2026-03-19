@@ -3,8 +3,6 @@ package com.budget.gateway.util;
 import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RequestContextDTO;
 import com.budget.common.utilities.LogUtil;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +11,6 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -26,14 +23,11 @@ import java.time.Instant;
 public class ContextInitUtil extends OncePerRequestFilter {
     private final IpUtil ipUtil;
     private final LogUtil logUtil;
-    private final ObjectMapper mapper;
 
     public ContextInitUtil (IpUtil ipUtil,
-                            LogUtil logUtil,
-                            ObjectMapper mapper){
+                            LogUtil logUtil){
         this.ipUtil = ipUtil;
         this.logUtil = logUtil;
-        this.mapper = mapper;
     }
 
     @Override
@@ -80,22 +74,14 @@ public class ContextInitUtil extends OncePerRequestFilter {
 
             //Write body if not already written - Should always be true
             if (!response.isCommitted()){
-                try{
-                    response.setStatus(dto.getStatusCode().value());
-                    if (dto.getPayload() != null){
-                        response.getWriter().write(mapper.writeValueAsString(dto.getPayload()));
-                    } else if (dto.getMessage() != null) {
-                        response.getWriter().write(mapper.writeValueAsString(dto.getMessage()));
-                    } else {
-                        response.getWriter().write("{}");
-                    }
-                }catch (JsonMappingException e){
-                    response.setStatus(dto.getStatusCode().value());
-                    response.getWriter().write("\"Internal Server Error during serialization\"");
+                response.setStatus(dto.getStatusCode().value());
+                if (dto.getPayload() != null) {
+                    response.getWriter().write(dto.getPayload());
+                } else if (dto.getMessage() != null)
+                    response.getWriter().write(dto.getMessage());
+                } else {
+                    response.getWriter().write("{}");
                 }
-
             }
-
         }
     }
-}
