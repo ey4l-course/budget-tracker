@@ -27,9 +27,8 @@ public class TxnController {
     @PreAuthorize("hasAuthority('app')")
     public void warmup(@RequestHeader("X-internal-Auth") String header,
                        @RequestBody String username){
-        System.out.println("warmup request landed");
-        List<CategoryDTO> tst = cacheFacade.warmUpFacade(username);
-        System.out.println(tst);
+        cacheFacade.warmUpFacade(username);
+        System.out.println("Warming up. username: " + username);
     }
 
     @GetMapping("/get-init-dash")

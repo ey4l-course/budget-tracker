@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
                                            HttpServletRequest request){
          RequestContextDTO contextDTO = contextHandler(request);
          contextDTO.setMessage(e.getMessage());
-         contextDTO.setPayload("Bad credentials");
+         contextDTO.setPayload("{\"error\":\"Bad credentials\"}");
          contextDTO.setSource(e.request().url().split("/")[2]);
          contextDTO.setStatusCode(HttpStatus.valueOf(e.status()));
          contextDTO.setCategory(LogCategory.SECURITY);
@@ -83,13 +83,13 @@ public class GlobalExceptionHandler {
         contextDTO.setCategory(LogCategory.UNEXPECTED_ERROR);
         contextDTO.setDebug(e);
         contextDTO.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-        contextDTO.setPayload("Internal server error");
+        contextDTO.setPayload("{\"error\":\"Internal server error\"}");
         contextDTO.setOutcome("[FAILURE]");
     }
 
     //Downstream 500 or network errors handler
     private void unexpectedHandler (FeignException e, RequestContextDTO contextDTO){
-        contextDTO.setPayload("Internal server error");
+        contextDTO.setPayload("{\"error\":\"Internal server error\"}");
         contextDTO.setUuid(e.contentUTF8());
         contextDTO.setSource(e.request().url().split("/")[2]);
         contextDTO.setCategory(LogCategory.INTERNAL);
