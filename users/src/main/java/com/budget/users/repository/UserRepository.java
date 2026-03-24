@@ -64,4 +64,9 @@ public class UserRepository {
             throw new UserNotFoundException(username);
         }
     }
+
+    public String whoAmI(String username) {
+        String sql = String.format("SELECT CONCAT (COALESCE(given_name, ''), ' ',COALESCE(surname, '')) FROM %s WHERE username = ?", USERS);
+        return jdbc.queryForObject(sql, String.class, username);
+    }
 }

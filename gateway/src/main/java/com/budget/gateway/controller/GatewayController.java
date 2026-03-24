@@ -3,6 +3,7 @@ package com.budget.gateway.controller;
 import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RequestContextDTO;
 import com.budget.gateway.client.TxnClient;
+import com.budget.gateway.client.UserClient;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -15,8 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/app")
 public class GatewayController {
     private final TxnClient txnClient;
+    private final UserClient userClient;
 
-    public GatewayController (TxnClient txnClient){ this.txnClient = txnClient; }
+    public GatewayController (TxnClient txnClient,
+                              UserClient userClient){
+        this.txnClient = txnClient;
+        this.userClient = userClient;
+    }
 
     @GetMapping ("/login")
     @PreAuthorize("hasAnyAuthority('user', 'admin')")
@@ -25,6 +31,14 @@ public class GatewayController {
         String data = txnClient.getTxn();
         contextDTO.setPayload(data);
         markSuccess(contextDTO, HttpStatus.OK, "user profile successfully loaded");
+    }
+
+    @GetMapping ("/session-verification")
+    @PreAuthorize("hasAnyAuthority('user', 'admin')")
+    public void whoAmI (HttpServletRequest request) {
+        RequestContextDTO contextDTO = contextHandler(request);
+        String name = userClient.whoAmI();
+        markSuccess(contextDTO, HttpStatus.OK, name);
     }
 
     //Helper
