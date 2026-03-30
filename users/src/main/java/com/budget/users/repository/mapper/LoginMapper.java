@@ -12,6 +12,7 @@ public class LoginMapper implements RowMapper<FeignLoginDTO> {
         return new FeignLoginDTO(
                 rs.getString("password"),
                 rs.getBoolean("is_admin"),
+                rs.getBoolean("is_activated"),
                 rs.getString("given_name"),
                 rs.getString("surname")
         );

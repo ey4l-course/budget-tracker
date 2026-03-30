@@ -8,12 +8,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/app")
+@PreAuthorize("hasAnyAuthority('user', 'admin')")
 public class GatewayController {
     private final TxnClient txnClient;
     private final UserClient userClient;
@@ -25,7 +24,6 @@ public class GatewayController {
     }
 
     @GetMapping ("/login")
-    @PreAuthorize("hasAnyAuthority('user', 'admin')")
     public void login (HttpServletRequest request) {
         RequestContextDTO contextDTO = contextHandler(request);
         String data = txnClient.getTxn();
@@ -34,11 +32,32 @@ public class GatewayController {
     }
 
     @GetMapping ("/session-verification")
-    @PreAuthorize("hasAnyAuthority('user', 'admin')")
     public void whoAmI (HttpServletRequest request) {
         RequestContextDTO contextDTO = contextHandler(request);
         String name = userClient.whoAmI();
         markSuccess(contextDTO, HttpStatus.OK, name);
+    }
+
+    @PostMapping ("/activate-account")
+    public void ActivateAccount (@RequestBody String initPoll,
+                                 HttpServletRequest request) {
+        RequestContextDTO contextDTO = contextHandler(request);
+        contextDTO.setPayload(userClient.ActivateAccount(initPoll));
+        markSuccess(contextDTO, HttpStatus.OK, "Account successfully activated (manual)");
+    }
+
+    @PostMapping ("/update-budget-config")
+    public void updateBudgetConfig (@RequestBody String updatedData,
+                                    HttpServletRequest request) {
+        RequestContextDTO contextDTO = contextHandler(request);
+        markSuccess(contextDTO, HttpStatus.OK, userClient.updateBudgetConfig(updatedData));
+    }
+
+    @PostMapping ("/activate-account-auto")
+    public void activateAccountAuto (@RequestBody String bankDetails,
+                                    HttpServletRequest request) {
+        RequestContextDTO contextDTO = contextHandler(request);
+        //TODO: Next step
     }
 
     //Helper

@@ -10,7 +10,7 @@ spring:
     import: "classpath:/${APP_ENV:dev}.yaml"
 
   datasource:
-    url: jdbc:h2:mem:usersdb
+    url: jdbc:h2:mem:usersdb;
     driver-class-name: org.h2.Driver
     username: sa
     password:

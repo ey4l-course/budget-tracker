@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class FeignLoginDTO {
     private String msg;
     private boolean admin;
+    private boolean isActivated;
     private String givenName;
     private String surname;
 }

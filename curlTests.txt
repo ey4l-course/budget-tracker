@@ -1,6 +1,6 @@
 Successful register
 
-curl -v -i -X POST http://localhost:8080/public/register \
+curl -i -X POST http://localhost:8080/public/register \
 -H "Content-Type: application/json" \
 -d '{
   "id": "123456782",
@@ -41,6 +41,16 @@ echo "Stored Cookie: $TST_COOKIE"
 curl -v -i -X GET http://localhost:8080/app/login \
 -H "Content-Type: application/json" \
 -H "Cookie: $TST_COOKIE"
+
+curl -v -i -X POST http://localhost:8080/app/activate-account \
+-H "Content-Type: application/json" \
+-H "Cookie: $TST_COOKIE" \
+-d '{
+    "username": "tester01",
+    "categoryName": "estimate",
+    "categoryType": "INCOME"
+    "amount": 10000
+}'
 
 curl -v -X POST "http://localhost:8080/dev/query/transactions" \
      -H "Content-Type: text/plain" \
