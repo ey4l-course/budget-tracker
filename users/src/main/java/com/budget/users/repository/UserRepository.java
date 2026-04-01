@@ -15,6 +15,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigInteger;
 import java.sql.PreparedStatement;
 import java.util.List;
 
@@ -60,7 +61,7 @@ public class UserRepository {
             ps.setString(5, address.getZipcode());
             return ps;
         }, key);
-        return key.getKeyAs(Integer.class);
+        return key.getKeyAs(BigInteger.class).intValue();
     }
 
     public FeignLoginDTO login(String username) {

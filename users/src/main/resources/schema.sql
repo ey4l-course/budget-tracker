@@ -1,4 +1,4 @@
-CREATE TABLE addresses_table (
+CREATE TABLE IF NOT EXISTS addresses_table (
     id INT AUTO_INCREMENT PRIMARY KEY,
     state VARCHAR(50),
     city VARCHAR(50),
@@ -7,7 +7,7 @@ CREATE TABLE addresses_table (
     zipcode VARCHAR(10)
 );
 
-CREATE TABLE users_table (
+CREATE TABLE IF NOT EXISTS users_table (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE users_table (
     FOREIGN KEY (address_id) REFERENCES addresses_table(id)
 );
 
-CREATE TABLE budget_configs (
+CREATE TABLE IF NOT EXISTS budget_configs (
     username VARCHAR(50) NOT NULL,
     category_name VARCHAR(30) NOT NULL,
     category_type VARCHAR(10) CHECK (category_type IN ('INCOME', 'EXPENSE')),
@@ -30,7 +30,7 @@ CREATE TABLE budget_configs (
     PRIMARY KEY (username, category_name)
 );
 
-CREATE TABLE monthly_snapshots (
+CREATE TABLE IF NOT EXISTS monthly_snapshots (
     user_id INT NOT NULL,
     category_name VARCHAR(30) NOT NULL,
     snapshot_date DATE NOT NULL,

@@ -3,7 +3,7 @@ SELECT
     id, timestamp, name, amount, comment, system_flag
 FROM transactions
 WHERE username = :username
-  AND timestamp >= DATE_TRUNC('MONTH', CURRENT_DATE)
+  AND timestamp >= DATE_FORMAT(CURRENT_DATE, '%Y-%m-01')
   AND is_expense = TRUE
   AND is_split = FALSE
 ORDER BY category, timestamp DESC;
