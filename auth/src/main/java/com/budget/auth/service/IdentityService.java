@@ -5,6 +5,7 @@ import com.budget.auth.client.RegisterClient;
 import com.budget.auth.client.TxnWarmupClient;
 import com.budget.auth.util.CustomAccessDeniedException;
 import com.budget.common.dto.*;
+import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -51,7 +52,11 @@ public class IdentityService {
             throw new RuntimeException("loginClient returned status 2xx but null body");
         if (!util.authHandler(res, credentials))
             throw new CustomAccessDeniedException("Password mismatch");
-        warmupClient.warmup(header, credentials.getUsername());
+        try {
+            warmupClient.warmup(header, credentials.getUsername());
+        }catch (FeignException e){
+            System.out.println("Failed to warm-up: " + e.getMessage());
+        }
         res.setMsg("Successful login");
         return res;
     }
