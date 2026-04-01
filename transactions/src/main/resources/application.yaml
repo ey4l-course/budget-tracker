@@ -10,7 +10,7 @@ spring:
     import: "classpath:/${APP_ENV:dev}.yaml"
 
   datasource:
-    url: jdbc:mariadb://localhost:3306/transactiondb
+    url: jdbc:mariadb://localhost:3306/transactionsdb
     driver-class-name: org.mariadb.jdbc.Driver
     username: sa
     password: sa

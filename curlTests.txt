@@ -48,13 +48,11 @@ curl -v -i -X POST http://localhost:8080/app/activate-account \
 -d '{
     "username": "tester01",
     "categoryName": "estimate",
-    "categoryType": "INCOME"
+    "categoryType": "INCOME",
     "amount": 10000
 }'
 
-curl -v -X POST "http://localhost:8080/dev/query/transactions" \
-     -H "Content-Type: text/plain" \
-"INSERT INTO transactions (username, name, amount, is_expense, default_category, user_defined_category, default_regular_interval) VALUES
+INSERT INTO transactions (username, name, amount, is_expense, default_category, user_defined_category, default_regular_interval) VALUES
 ('tester01', 'Shufersal', 450.50, true, 'groceries', NULL, 0),
 ('tester01', 'Paz', 280.00, true, 'vehicle', NULL, 0),
 ('tester01', 'Technion', 5000.00, true, 'education', NULL, 12),
