@@ -79,10 +79,9 @@ public class UserRepository {
     }
 
     public int[] updateBudgetConfig(List<UpdateBudgetConfigDTO> data) {
-            String sql = "INSERT INTO budget_configs (username, category_name, category_type, is_manual, amount_limit) " +
-                    "values (:username, :categoryName, :categoryType, true, :amount) " +
-                    "ON CONFLICT (username, category_name) " +
-                    "DO UPDATE SET amount_limit = EXCLUDED.amount_limit";
+        String sql = "INSERT INTO budget_configs (username, category_name, category_type, is_manual, amount_limit) " +
+                "VALUES (:username, :categoryName, :categoryType, true, :amount) " +
+                "ON DUPLICATE KEY UPDATE amount_limit = VALUES(amount_limit)";
             SqlParameterSource[] batch = data.stream()
                     .map(BeanPropertySqlParameterSource::new)
                     .toArray(SqlParameterSource[]::new);
