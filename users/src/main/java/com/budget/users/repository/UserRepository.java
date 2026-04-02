@@ -87,4 +87,9 @@ public class UserRepository {
                     .toArray(SqlParameterSource[]::new);
             return namedJdbc.batchUpdate(sql, batch);
     }
+
+    public int activateUser (String username) {
+        String sql = "UPDATE "+USERS+" SET is_activated = true WHERE username = ?";
+        return jdbc.update(sql);
+    }
 }

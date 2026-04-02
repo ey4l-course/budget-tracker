@@ -50,6 +50,7 @@ public class UserService {
         for (Map.Entry<String, BigDecimal> entry : expenseDistBaseline.entrySet()){
             result.put(entry.getKey(), income.getAmount().multiply(entry.getValue()));
         }
+        repo.activateUser(income.getUsername());
         return result;
     }
 
