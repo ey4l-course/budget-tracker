@@ -52,11 +52,12 @@ public class IdentityService {
             throw new RuntimeException("loginClient returned status 2xx but null body");
         if (!util.authHandler(res, credentials))
             throw new CustomAccessDeniedException("Password mismatch");
-        try {
-            warmupClient.warmup(header, credentials.getUsername());
-        }catch (FeignException e){
-            System.out.println("Failed to warm-up: " + e.getMessage());
-        }
+        if (res.isActivated())
+            try {
+                warmupClient.warmup(header, credentials.getUsername());
+            }catch (FeignException e){
+                System.out.println("Failed to warm-up: " + e.getMessage());
+            }
         res.setMsg("Successful login");
         return res;
     }

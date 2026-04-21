@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class TransactionDTO {
     private Long id;
     private String category;
+    private TxnType txnType;
     private String name;
     private LocalDateTime date;
     private BigDecimal amount;

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(name = "txnWarmup", url = "${routes.transactions}")
 public interface TxnWarmupClient {
-    @PostMapping("/txn/warmup")
+    @PostMapping("/warmup")
     void warmup (@RequestHeader("X-internal-Auth") String header,
                  @RequestBody String username);
 }

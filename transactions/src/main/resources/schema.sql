@@ -37,3 +37,20 @@ CREATE TABLE transactions (
 );
 CREATE INDEX idx_txn_user ON transactions (username);
 CREATE INDEX idx_txn_name ON transactions (name);
+
+CREATE TABLE IF NOT EXISTS budget_configs (
+    username VARCHAR(50) NOT NULL,
+    category_name VARCHAR(30) NOT NULL,
+    category_type VARCHAR(10) CHECK (category_type IN ('INCOME', 'EXPENSE')),
+    is_manual BOOLEAN DEFAULT FALSE,
+    amount_limit DECIMAL(19,4) DEFAULT 0.00,
+    PRIMARY KEY (username, category_name)
+    );
+
+CREATE TABLE IF NOT EXISTS monthly_snapshots (
+    user_id INT NOT NULL,
+    category_name VARCHAR(30) NOT NULL,
+    snapshot_date DATE NOT NULL,
+    actual_amount DECIMAL(19,4),
+    PRIMARY KEY (user_id, category_name, snapshot_date)
+    );

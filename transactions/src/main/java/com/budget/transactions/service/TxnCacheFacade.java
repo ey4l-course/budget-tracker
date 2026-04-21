@@ -10,9 +10,9 @@ import java.util.List;
 
 @Service
 public class TxnCacheFacade {
-    private final TxnService service;
+    private final WarmupService service;
 
-    public TxnCacheFacade (TxnService service) { this.service = service; }
+    public TxnCacheFacade (WarmupService service) { this.service = service; }
 
     @CachePut(value = "warmupCache", key = "#a0")
     public List<CategoryDTO> warmUpFacade (String username) {

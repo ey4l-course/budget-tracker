@@ -2,15 +2,12 @@ package com.budget.users.repository;
 
 import com.budget.common.dto.FeignLoginDTO;
 import com.budget.common.dto.RegisterDto;
-import com.budget.users.model.UpdateBudgetConfigDTO;
 import com.budget.users.repository.mapper.LoginMapper;
 import com.budget.users.util.UserNotFoundException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -78,18 +75,12 @@ public class UserRepository {
         return jdbc.queryForObject(sql, String.class, username);
     }
 
-    public int[] updateBudgetConfig(List<UpdateBudgetConfigDTO> data) {
-        String sql = "INSERT INTO budget_configs (username, category_name, category_type, is_manual, amount_limit) " +
-                "VALUES (:username, :categoryName, :categoryType, true, :amount) " +
-                "ON DUPLICATE KEY UPDATE amount_limit = VALUES(amount_limit)";
-            SqlParameterSource[] batch = data.stream()
-                    .map(BeanPropertySqlParameterSource::new)
-                    .toArray(SqlParameterSource[]::new);
-            return namedJdbc.batchUpdate(sql, batch);
+    public int activateUser (String username) {
+        String sql = "UPDATE " + USERS + " SET is_activated = true WHERE username = ?";
+        return jdbc.update(sql, username);
     }
 
-    public int activateUser (String username) {
-        String sql = "UPDATE "+USERS+" SET is_activated = true WHERE username = ?";
-        return jdbc.update(sql);
+    public void deactivateUser(String username) {
+        jdbc.update("UPDATE " + USERS + " SET is_activated = false WHERE username = ?", username);
     }
 }

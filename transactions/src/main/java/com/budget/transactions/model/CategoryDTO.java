@@ -12,7 +12,9 @@ import java.util.List;
 @NoArgsConstructor
 public class CategoryDTO {
     private String name;
+    private TxnType categoryType;
     private BigDecimal subtotal;
+    private BigDecimal limitAmount;
     private List<TransactionResponseDTO> content;
 
     public void updateSubtotal (BigDecimal addition) {

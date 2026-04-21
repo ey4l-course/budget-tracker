@@ -1,4 +1,4 @@
-package com.budget.users.model;
+package com.budget.transactions.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

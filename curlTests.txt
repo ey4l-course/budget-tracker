@@ -45,12 +45,12 @@ curl -v -i -X GET http://localhost:8080/app/login \
 curl -v -i -X POST http://localhost:8080/app/activate-account \
 -H "Content-Type: application/json" \
 -H "Cookie: $TST_COOKIE" \
--d '{
+-d '[{
     "username": "tester01",
     "categoryName": "estimate",
     "categoryType": "INCOME",
     "amount": 10000
-}'
+}]'
 
 INSERT INTO transactions (username, name, amount, is_expense, default_category, user_defined_category, default_regular_interval) VALUES
 ('tester01', 'Shufersal', 450.50, true, 'groceries', NULL, 0),
