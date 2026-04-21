@@ -7,12 +7,9 @@ import com.budget.gateway.util.ValidatorsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class GatewayPublicService {

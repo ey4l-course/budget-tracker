@@ -1,11 +1,13 @@
 package com.budget.users.controller;
 
 import com.budget.common.dto.FeignRegisterDTO;
+import com.budget.common.exceptions.MinorRuntimeException;
 import com.budget.common.utilities.LogUtil;
 import com.budget.users.util.UserNotFoundException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -28,6 +30,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler (UserNotFoundException.class)
     public ResponseEntity<String> userNotFoundHandler (UserNotFoundException e){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+    }
+
+    @ExceptionHandler (MinorRuntimeException.class)
+    public ResponseEntity<String> minorRuntimeHandler (MinorRuntimeException e,
+                                                       @AuthenticationPrincipal String username) {
+        logger.internalErrorLog(e);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
      //Unpredicted exception. Logs full trace and sends uuid upstream

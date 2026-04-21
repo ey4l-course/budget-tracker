@@ -42,7 +42,7 @@ public class GatewayController {
     public void ActivateAccount (@RequestBody String initPoll,
                                  HttpServletRequest request) {
         RequestContextDTO contextDTO = contextHandler(request);
-        contextDTO.setPayload(userClient.ActivateAccount(initPoll));
+        contextDTO.setPayload(txnClient.ActivateAccount(initPoll));
         markSuccess(contextDTO, HttpStatus.OK, "Account successfully activated (manual)");
     }
 
@@ -50,7 +50,7 @@ public class GatewayController {
     public void updateBudgetConfig (@RequestBody String updatedData,
                                     HttpServletRequest request) {
         RequestContextDTO contextDTO = contextHandler(request);
-        markSuccess(contextDTO, HttpStatus.OK, userClient.updateBudgetConfig(updatedData));
+        markSuccess(contextDTO, HttpStatus.OK, txnClient.updateBudgetConfig(updatedData));
     }
 
     @PostMapping ("/activate-account-auto")
