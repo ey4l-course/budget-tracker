@@ -8,7 +8,8 @@ LEFT JOIN transactions t ON
     bc.username = t.username AND
     bc.category_name = COALESCE(t.user_defined_category, t.default_category) AND
     bc.category_type = t.category_type AND
-    t.timestamp >= DATE_FORMAT(CURRENT_DATE, '%Y-%m-01') AND
+    t.timestamp >= :start AND
+    t.timestamp < :end AND
     t.is_split = FALSE
 WHERE bc.username = :username
 GROUP BY bc.category_name, bc.category_type, bc.amount_limit;

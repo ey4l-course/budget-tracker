@@ -3,6 +3,7 @@ SELECT
     id, timestamp, name, amount, comment, system_flag, category_type
 FROM transactions
 WHERE username = :username
-  AND timestamp >= DATE_FORMAT(CURRENT_DATE, '%Y-%m-01')
+  AND timestamp >= :start
+  AND timestamp < :end
   AND is_split = FALSE
 ORDER BY category, timestamp DESC;

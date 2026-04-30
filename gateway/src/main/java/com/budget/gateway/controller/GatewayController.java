@@ -5,10 +5,14 @@ import com.budget.common.dto.RequestContextDTO;
 import com.budget.gateway.client.TxnClient;
 import com.budget.gateway.client.UserClient;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.YearMonth;
+
 
 @RestController
 @RequestMapping("/app")
@@ -24,11 +28,24 @@ public class GatewayController {
     }
 
     @GetMapping ("/login")
-    public void login (HttpServletRequest request) {
+    public void login (@RequestParam ("flag") String flag,
+                       @RequestParam (required = false, name = "month") @DateTimeFormat (pattern = "yyyy-MM") YearMonth month,
+                       HttpServletRequest request){
         RequestContextDTO contextDTO = contextHandler(request);
-        String data = txnClient.getTxn();
+        if ("warmup".equals(flag))
+            contextDTO.setPayload(txnClient.getTxn());
+        if ("fetch-dashboard".equals(flag))
+            contextDTO.setPayload(txnClient.getDashboard(month.toString()));
+        markSuccess(contextDTO, HttpStatus.OK, "warmup".equals(flag) ? "user profile loaded": "Fetched transactions for " + month);
+    }
+
+    @GetMapping ("/fetch-dashboard/{month}")
+    public void getDashPerMonth (@PathVariable ("month") String month,
+                       HttpServletRequest request) {
+        RequestContextDTO contextDTO = contextHandler(request);
+        String data = txnClient.getDashboard(month);
         contextDTO.setPayload(data);
-        markSuccess(contextDTO, HttpStatus.OK, "user profile successfully loaded");
+        markSuccess(contextDTO, HttpStatus.OK, "Fetched transactions for " + month);
     }
 
     @GetMapping ("/session-verification")

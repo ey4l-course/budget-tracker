@@ -36,11 +36,11 @@ public class WarmupService {
         return true;
     }
 
-    public List<CategoryDTO> warmup (String username) {
-        if (!isAccountActivated(username))
+    public List<CategoryDTO> warmup (FetchDashDTO dto) {
+        if (!isAccountActivated(dto.getUsername()))
             return null;
-        List<CategoryDTO> fetchedCategories = repo.fetchCategories(username);
-        List<UpdateBudgetConfigDTO> detectedBugs = repo.bugDetector(username);
+        List<CategoryDTO> fetchedCategories = repo.fetchCategories(dto);
+        List<UpdateBudgetConfigDTO> detectedBugs = repo.bugDetector(dto);
         if (!detectedBugs.isEmpty()){
             for (UpdateBudgetConfigDTO cat : detectedBugs){
                 fetchedCategories.add(new CategoryDTO(
@@ -53,7 +53,7 @@ public class WarmupService {
             }
             cfgRepo.updateBudgetConfig(detectedBugs);
         }
-        List<TransactionDTO> rs = repo.fetchTransactions(username);
+        List<TransactionDTO> rs = repo.fetchTransactions(dto);
         Map<String,CategoryDTO> dictionary = new HashMap<>();
         for (CategoryDTO cat : fetchedCategories){
             dictionary.put(cat.getName()+"-"+cat.getCategoryType(), cat);

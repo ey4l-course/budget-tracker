@@ -1,6 +1,7 @@
 package com.budget.transactions.service;
 
 import com.budget.transactions.model.CategoryDTO;
+import com.budget.transactions.model.FetchDashDTO;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -14,16 +15,16 @@ public class TxnCacheFacade {
 
     public TxnCacheFacade (WarmupService service) { this.service = service; }
 
-    @CachePut(value = "warmupCache", key = "#a0")
-    public List<CategoryDTO> warmUpFacade (String username) {
-        return service.warmup(username);
+    @CachePut(value = "warmupCache")
+    public List<CategoryDTO> warmUpFacade (FetchDashDTO dto) {
+        return service.warmup(dto);
     }
 
-    @CacheEvict (value = "warmupCache", key = "#a0")
-    public void clearCache (String username) {}
+    @CacheEvict (value = "warmupCache")
+    public void clearCache (FetchDashDTO dto) {}
 
-    @Cacheable (value = "warmupCache", key = "#a0", sync = true)
-    public List<CategoryDTO> getCache(String username) {
-        return service.warmup(username);
+    @Cacheable (value = "warmupCache", sync = true)
+    public List<CategoryDTO> getCache(FetchDashDTO dto) {
+        return service.warmup(dto);
     }
 }

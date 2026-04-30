@@ -1,11 +1,10 @@
 package com.budget.transactions.repository;
 
-import com.budget.common.dto.BudgetCatDTO;
 import com.budget.common.exceptions.CriticalIncidentException;
 import com.budget.transactions.model.CategoryDTO;
+import com.budget.transactions.model.FetchDashDTO;
 import com.budget.transactions.model.TransactionDTO;
 import com.budget.transactions.model.UpdateBudgetConfigDTO;
-import com.budget.transactions.repository.Mapper.BudgetCatMapper;
 import com.budget.transactions.repository.Mapper.CategoryDtoMapper;
 import com.budget.transactions.repository.Mapper.TransactionDtoMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,17 +50,15 @@ public class WarmupRepository {
         }
     }
 
-    public List<CategoryDTO> fetchCategories (String username) {
-        SqlParameterSource param = new MapSqlParameterSource()
-                .addValue("username", username);
+    public List<CategoryDTO> fetchCategories (FetchDashDTO dto) {
+        SqlParameterSource param = setParams(dto);
         return jdbc.query(fetchCategoriesSql, param, new CategoryDtoMapper());
     }
 
-    public List<UpdateBudgetConfigDTO> bugDetector (String username) {
-        SqlParameterSource param = new MapSqlParameterSource()
-                .addValue("username", username);
+    public List<UpdateBudgetConfigDTO> bugDetector (FetchDashDTO dto) {
+        SqlParameterSource param = setParams(dto);
         return jdbc.query(bugDetectorSql, param, (rs, rowNum) -> new UpdateBudgetConfigDTO(
-                username,
+                dto.getUsername(),
                 rs.getString("category_name"),
                 rs.getString("category_type"),
                 false,
@@ -69,9 +66,16 @@ public class WarmupRepository {
         ));
     }
 
-    public List<TransactionDTO> fetchTransactions (String username){
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("username", username);
+    public List<TransactionDTO> fetchTransactions (FetchDashDTO dto){
+        MapSqlParameterSource params = setParams(dto);
         return jdbc.query(warmupQuerySql, params, new TransactionDtoMapper());
+    }
+
+    //helper
+    private MapSqlParameterSource setParams (FetchDashDTO dto){
+        return new MapSqlParameterSource()
+                .addValue("username", dto.getUsername())
+                .addValue("start", dto.getStart())
+                .addValue("end", dto.getEnd());
     }
 }

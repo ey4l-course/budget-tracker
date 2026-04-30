@@ -33,6 +33,10 @@ public class BudgetConfigService {
 
     public List<BudgetCatDTO> activateUser (List<UpdateBudgetConfigDTO> income, String username){
         userClient.activateAccount(username);
+        for (UpdateBudgetConfigDTO el : income){
+            if (el.getUsername() == null || el.getUsername().isEmpty())
+                el.setUsername(username);
+        }
         repo.updateBudgetConfig(income);
         return applyDefaults(income.getFirst().getAmount());
     }
