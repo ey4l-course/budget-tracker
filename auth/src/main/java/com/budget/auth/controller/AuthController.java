@@ -39,7 +39,10 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public List<String> refresh (AuthenticatedDTO user){ return List.of(identityService.getNewToken(user)); }
+    public List<String> refresh (@RequestBody AuthenticatedDTO user){
+        String token = identityService.getNewToken(user);
+        return List.of(cookieUtil.addAccessCookie(token));
+    }
 
     @PostMapping("/logout")
     public List<String> logout (AuthenticatedDTO user){ return identityService.logout(); }

@@ -39,6 +39,7 @@ public class GwAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        SecurityContextHolder.clearContext();
         RequestContextDTO contextDTO = (RequestContextDTO) request.getAttribute("context");
         if (contextDTO == null)
                 contextDTO = new  RequestContextDTO(request.getRequestURI(),
@@ -88,7 +89,6 @@ public class GwAuthFilter extends OncePerRequestFilter {
     }
 
     private void setSecurityContext (AuthenticatedDTO currentUser) {
-        SecurityContextHolder.clearContext();
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(
                         currentUser,

@@ -16,7 +16,7 @@ public class CookieUtil {
                 .httpOnly(true)
                 .secure(true)
                 .path("/app")
-                .maxAge(access / 1000)
+//                .maxAge(access / 1000)
                 .sameSite("None")
                 .build()
                 .toString();
