@@ -53,4 +53,6 @@ public class IdentityService {
         res.setMsg("Successful login");
         return res;
     }
+
+    public String getNewToken(AuthenticatedDTO user) { return util.generateNewAccessToken(user); }
 }

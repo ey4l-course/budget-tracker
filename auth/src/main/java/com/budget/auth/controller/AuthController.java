@@ -2,15 +2,14 @@ package com.budget.auth.controller;
 
 import com.budget.auth.service.IdentityService;
 import com.budget.auth.util.CookieUtil;
-import com.budget.common.dto.FeignLoginDTO;
-import com.budget.common.dto.FeignRegisterDTO;
-import com.budget.common.dto.LoginDto;
-import com.budget.common.dto.RegisterDto;
+import com.budget.common.dto.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping ("/public")
@@ -38,4 +37,7 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, cookieUtil.addRefreshCookie(credentials.getRefresh()))
                 .body(res);
     }
+
+    @PostMapping("/refresh")
+    public List<String> refresh (AuthenticatedDTO user){ return List.of(identityService.getNewToken(user)); }
 }

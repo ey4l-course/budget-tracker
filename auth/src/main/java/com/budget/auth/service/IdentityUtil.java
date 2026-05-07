@@ -1,6 +1,7 @@
 package com.budget.auth.service;
 
 import com.budget.auth.util.JwtUtil;
+import com.budget.common.dto.AuthenticatedDTO;
 import com.budget.common.dto.FeignLoginDTO;
 import com.budget.common.dto.LoginDto;
 import com.budget.common.exceptions.CriticalIncidentException;
@@ -65,6 +66,13 @@ public class IdentityUtil {
         }else {
             return false;
         }
+    }
+
+    protected String generateNewAccessToken(AuthenticatedDTO user){
+        return jwt.generateAccessToken(
+                user.getUsername(),
+                user.getRole()
+        );
     }
 
     public String internalSignatureHandler (String serviceName) {
