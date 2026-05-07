@@ -48,7 +48,7 @@ public class GatewayPublicService {
     }
 
     public String login(LoginDto login,
-                                                  RequestContextDTO contextDTO) {
+                        RequestContextDTO contextDTO) {
         ResponseEntity<String> res = publicUserClient.forward("login", stringify(login));
         if (res.getHeaders().get(HttpHeaders.SET_COOKIE) == null)
             throw new RuntimeException("No cookies found");
@@ -56,6 +56,10 @@ public class GatewayPublicService {
         if (res.getHeaders().containsKey("X-flag"))
             contextDTO.setCategory(LogCategory.ADMIN);
         return res.getBody();
+    }
+
+    public List<String> refresh (AuthenticatedDTO user) {
+        return publicUserClient.refresh(user);
     }
 
     private String stringify(Object obj){
