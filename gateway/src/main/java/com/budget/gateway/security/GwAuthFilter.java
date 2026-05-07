@@ -50,10 +50,18 @@ public class GwAuthFilter extends OncePerRequestFilter {
             if (cookies != null){
                 for (Cookie c : cookies){
                     if ("access".equals(c.getName())){
-                        currentUser = sig.extractDetails(c.getValue());
+                        currentUser = sig.extractAccessDetails(c.getValue());
                         contextDTO.setUserName(currentUser.getUsername());
                     }
                 }
+                if (currentUser == null)
+                    if ("/public/refresh".equals(contextDTO.getEntryRoute()))
+                        for (Cookie c : cookies){
+                            if ("refresh".equals(c.getName())){
+                                currentUser = sig.extractRefreshDetails(c.getValue());
+                                contextDTO.setUserName(currentUser.getUsername());
+                            }
+                        }
             }
             if (currentUser != null)
                 setSecurityContext(currentUser);

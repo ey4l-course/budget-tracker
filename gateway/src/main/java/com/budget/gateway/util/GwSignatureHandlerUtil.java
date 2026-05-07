@@ -2,16 +2,12 @@ package com.budget.gateway.util;
 
 import com.budget.common.client.GetWellKnown;
 import com.budget.common.dto.AuthenticatedDTO;
-import com.budget.common.dto.SignatureVerificationDTO;
-import com.budget.common.exceptions.CriticalIncidentException;
 import com.budget.common.exceptions.CustomSecurityException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
@@ -25,11 +21,18 @@ public class GwSignatureHandlerUtil {
 
     public GwSignatureHandlerUtil(GetWellKnown getKey){ this.getKey = getKey; }
 
-    public AuthenticatedDTO extractDetails (String jwt){
+    public AuthenticatedDTO extractAccessDetails(String jwt){
         Claims c = extractAllClaims(jwt, false);
+        if (!"access".equals(c.get("type", String.class)))
+            throw new CustomSecurityException("Signature type mismatch", "access", jwt);
         return new AuthenticatedDTO(c.getSubject(), c.get("role", String.class));
     }
-
+    public AuthenticatedDTO extractRefreshDetails(String jwt){
+        Claims c = extractAllClaims(jwt, false);
+        if (!"refresh".equals(c.get("type", String.class)))
+            throw new CustomSecurityException("Signature type mismatch", "refresh", jwt);
+        return new AuthenticatedDTO(c.getSubject(), c.get("role", String.class));
+    }
     private Claims extractAllClaims (String jwt, boolean attempt){
         try{
             return Jwts.parser()
