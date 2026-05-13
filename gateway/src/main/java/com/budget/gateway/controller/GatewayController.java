@@ -1,7 +1,9 @@
 package com.budget.gateway.controller;
 
+import com.budget.common.dto.AuthenticatedDTO;
 import com.budget.common.dto.LogCategory;
 import com.budget.common.dto.RequestContextDTO;
+import com.budget.gateway.client.PublicUserClient;
 import com.budget.gateway.client.TxnClient;
 import com.budget.gateway.client.UserClient;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,6 +11,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.YearMonth;
@@ -20,11 +23,14 @@ import java.time.YearMonth;
 public class GatewayController {
     private final TxnClient txnClient;
     private final UserClient userClient;
+    private final PublicUserClient authClient;
 
     public GatewayController (TxnClient txnClient,
-                              UserClient userClient){
+                              UserClient userClient,
+                              PublicUserClient authClient){
         this.txnClient = txnClient;
         this.userClient = userClient;
+        this.authClient = authClient;
     }
 
     @GetMapping ("/login")
@@ -75,6 +81,16 @@ public class GatewayController {
                                     HttpServletRequest request) {
         RequestContextDTO contextDTO = contextHandler(request);
         //TODO: Next step
+    }
+
+    @PostMapping("/logout")
+    public void logout (@AuthenticationPrincipal AuthenticatedDTO user,
+                        HttpServletRequest request){
+        RequestContextDTO contextDTO = contextHandler(request);
+        contextDTO.setUserName(user.getUsername());
+        contextDTO.setCookies(authClient.logout(user));
+        contextDTO.setCategory("admin".equals(user.getRole()) ? LogCategory.ADMIN : LogCategory.OPERATION);
+        markSuccess(contextDTO, HttpStatus.NO_CONTENT, "Successfully logged out");
     }
 
     //Helper

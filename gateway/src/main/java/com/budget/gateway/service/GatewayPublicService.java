@@ -68,6 +68,4 @@ public class GatewayPublicService {
             throw new RuntimeException(e);
         }
     }
-
-    public List<String> logout(AuthenticatedDTO user) { return publicUserClient.logout(user); }
 }

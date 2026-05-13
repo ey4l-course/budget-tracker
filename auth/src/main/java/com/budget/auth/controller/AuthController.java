@@ -45,5 +45,5 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public List<String> logout (AuthenticatedDTO user){ return identityService.logout(); }
+    public List<String> logout (@RequestBody AuthenticatedDTO user){ return identityService.logout(); }
 }
