@@ -32,4 +32,26 @@ public class CookieUtil {
                 .build()
                 .toString();
     }
+
+    public String removeAccessCookie (String jwt){
+        return ResponseCookie.from("access", jwt)
+                .httpOnly(true)
+                .secure(true)
+                .path("/app")
+                .maxAge(0)
+                .sameSite("None")
+                .build()
+                .toString();
+    }
+
+    public String removeRefreshCookie (String jwt){
+        return ResponseCookie.from("refresh", jwt)
+                .httpOnly(true)
+                .secure(true)
+                .path("/public/refresh")
+                .maxAge(0)
+                .sameSite("None")
+                .build()
+                .toString();
+    }
 }

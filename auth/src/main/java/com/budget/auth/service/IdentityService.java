@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class IdentityService {
     private final RegisterClient registerClient;
@@ -55,4 +57,8 @@ public class IdentityService {
     }
 
     public String getNewToken(AuthenticatedDTO user) { return util.generateNewAccessToken(user); }
+
+    public List<String> logout() {
+        return util.logout();
+    }
 }

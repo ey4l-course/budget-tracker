@@ -52,9 +52,22 @@ public class GatewayPublicController {
         RequestContextDTO contextDTO = contextHandler(request);
         contextDTO.setUserName(user.getUsername());
         contextDTO.setCookies(service.refresh(user));
-        contextDTO.setCategory("admin".equals(user.getRole()) ? LogCategory.ADMIN : null);
+        contextDTO.setCategory("admin".equals(user.getRole()) ? LogCategory.ADMIN : LogCategory.OPERATION);
         markSuccess(contextDTO, HttpStatus.NO_CONTENT, "Token successfully refreshed");
     }
+
+    @PostMapping("/logout")
+    @PreAuthorize("hasAnyAuthority('user', 'admin')")
+    public void logout (@AuthenticationPrincipal AuthenticatedDTO user,
+                        HttpServletRequest request){
+        RequestContextDTO contextDTO = contextHandler(request);
+        contextDTO.setUserName(user.getUsername());
+        contextDTO.setCookies(service.logout(user));
+        contextDTO.setCategory("admin".equals(user.getRole()) ? LogCategory.ADMIN : LogCategory.OPERATION);
+        markSuccess(contextDTO, HttpStatus.NO_CONTENT, "Successfully logged out");
+    }
+
+
 
     //Helper
     private RequestContextDTO contextHandler (HttpServletRequest request){

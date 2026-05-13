@@ -16,4 +16,7 @@ public interface PublicUserClient {
 
     @PostMapping(value = "/refresh", consumes = MediaType.APPLICATION_JSON_VALUE)
     List<String> refresh (@RequestBody AuthenticatedDTO user);
+
+    @PostMapping(value = "/logout", consumes = MediaType.APPLICATION_JSON_VALUE)
+    List<String> logout(@RequestBody AuthenticatedDTO user);
 }

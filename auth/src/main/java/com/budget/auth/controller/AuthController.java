@@ -40,4 +40,7 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public List<String> refresh (AuthenticatedDTO user){ return List.of(identityService.getNewToken(user)); }
+
+    @PostMapping("/logout")
+    public List<String> logout (AuthenticatedDTO user){ return identityService.logout(); }
 }

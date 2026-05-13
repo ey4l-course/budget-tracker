@@ -1,5 +1,6 @@
 package com.budget.auth.service;
 
+import com.budget.auth.util.CookieUtil;
 import com.budget.auth.util.JwtUtil;
 import com.budget.common.dto.AuthenticatedDTO;
 import com.budget.common.dto.FeignLoginDTO;
@@ -14,9 +15,11 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
 import java.security.Signature;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HexFormat;
 import java.security.MessageDigest;
+import java.util.List;
 
 @Component
 public class IdentityUtil {
@@ -25,20 +28,23 @@ public class IdentityUtil {
     private final ObjectMapper mapper;
     private final JwtUtil jwt;
     private final PrivateKey privateKey;
+    private final CookieUtil cookieUtil;
 
     @Value("${security.fingerprint}")
     private String hashKey;
 
     public IdentityUtil(BCryptPasswordEncoder encoder,
-                           MessageDigest sha256,
-                           ObjectMapper mapper,
-                           JwtUtil jwt,
-                           PrivateKey privateKey){
+                        MessageDigest sha256,
+                        ObjectMapper mapper,
+                        JwtUtil jwt,
+                        PrivateKey privateKey,
+                        CookieUtil cookieUtil){
         this.encoder = encoder;
         this.sha256 = sha256;
         this.mapper = mapper;
         this.jwt = jwt;
         this.privateKey = privateKey;
+        this.cookieUtil = cookieUtil;
     }
 
     protected String stringEncoder (String raw){
@@ -73,6 +79,13 @@ public class IdentityUtil {
                 user.getUsername(),
                 user.getRole()
         );
+    }
+
+    protected List<String> logout () {
+        List<String> tokens = new ArrayList<>();
+        tokens.add(cookieUtil.removeAccessCookie(jwt.generateAccessToken("LOGOUT_USER", "NONE")));
+        tokens.add(cookieUtil.removeRefreshCookie(jwt.generateRefreshToken("LOGOUT", "NONE")));
+        return tokens;
     }
 
     public String internalSignatureHandler (String serviceName) {
