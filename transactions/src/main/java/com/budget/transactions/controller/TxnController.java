@@ -4,11 +4,10 @@ package com.budget.transactions.controller;
 import com.budget.common.dto.AuthenticatedDTO;
 import com.budget.common.dto.BudgetCatDTO;
 import com.budget.common.exceptions.CustomSecurityException;
-import com.budget.transactions.model.CategoryDTO;
-import com.budget.transactions.model.FetchDashDTO;
-import com.budget.transactions.model.UpdateBudgetConfigDTO;
+import com.budget.transactions.model.*;
 import com.budget.transactions.service.BudgetConfigService;
 import com.budget.transactions.service.TxnCacheFacade;
+import com.budget.transactions.service.TxnService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,11 +23,14 @@ import java.util.List;
 public class TxnController {
     private final BudgetConfigService cfgService;
     private final TxnCacheFacade cacheFacade;
+    private final TxnService service;
 
     public TxnController(TxnCacheFacade cacheFacade,
-                         BudgetConfigService cfgService){
+                         BudgetConfigService cfgService,
+                         TxnService service){
         this.cacheFacade = cacheFacade;
         this.cfgService = cfgService;
+        this.service = service;
     }
 
     @PostMapping("/warmup")
@@ -48,6 +50,7 @@ public class TxnController {
     @GetMapping ("/get-dash")
     public List<CategoryDTO> getDashData (@AuthenticationPrincipal AuthenticatedDTO user,
                                           @RequestParam(required = false, name = "month") @DateTimeFormat(pattern = "yyyy-MM")YearMonth month){
+        System.out.println(month);
         FetchDashDTO dto = new FetchDashDTO(
                 user.getUsername(),
                 month.atDay(1).atStartOfDay(),
@@ -70,13 +73,22 @@ public class TxnController {
         return cfgService.updateBudgetConfig(data, username);
     }
 
+    @PostMapping ("/new-txn")
+    public String newTxn (@RequestBody List<TransactionEntity> data,
+                          @AuthenticationPrincipal AuthenticatedDTO user){
+        for (TransactionEntity txn : data){
+            txn.setUsername(user.getUsername());
+        }
+        return service.newTxn(data);
+    }
+
     //helper
     private FetchDashDTO setCurrentMonth (String username){
-        LocalDateTime now = LocalDateTime.now();
+        YearMonth now = YearMonth.now();
         return new FetchDashDTO(
                 username,
-                now.withDayOfMonth(1).toLocalDate().atStartOfDay(),
-                now.plusMonths(1)
+                now.atDay(1).atStartOfDay(),
+                now.plusMonths(1).atDay(1).atStartOfDay()
         );
     }
 

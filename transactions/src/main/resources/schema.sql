@@ -32,8 +32,10 @@ CREATE TABLE transactions (
     default_regular_interval INT DEFAULT 0,
     user_defined_regular INT DEFAULT NULL,
     comment VARCHAR(50),
-    is_expense BOOLEAN,
-    system_flag INT DEFAULT 0
+    category_type VARCHAR(10) CHECK (category_type IN ('INCOME', 'EXPENSE')),
+    system_flag INT DEFAULT 0,
+    transaction_date DATE GENERATED ALWAYS AS (DATE (timestamp)) STORED,
+    UNIQUE KEY uq_transaction (username, name, amount, transaction_date)
 );
 CREATE INDEX idx_txn_user ON transactions (username);
 CREATE INDEX idx_txn_name ON transactions (name);

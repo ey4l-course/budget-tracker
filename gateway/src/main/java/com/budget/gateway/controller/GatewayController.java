@@ -45,14 +45,14 @@ public class GatewayController {
         markSuccess(contextDTO, HttpStatus.OK, "warmup".equals(flag) ? "user profile loaded": "Fetched transactions for " + month);
     }
 
-    @GetMapping ("/fetch-dashboard/{month}")
-    public void getDashPerMonth (@PathVariable ("month") String month,
-                       HttpServletRequest request) {
-        RequestContextDTO contextDTO = contextHandler(request);
-        String data = txnClient.getDashboard(month);
-        contextDTO.setPayload(data);
-        markSuccess(contextDTO, HttpStatus.OK, "Fetched transactions for " + month);
-    }
+//    @GetMapping ("/fetch-dashboard/{month}")
+//    public void getDashPerMonth (@PathVariable ("month") String month,
+//                       HttpServletRequest request) {
+//        RequestContextDTO contextDTO = contextHandler(request);
+//        String data = txnClient.getDashboard(month);
+//        contextDTO.setPayload(data);
+//        markSuccess(contextDTO, HttpStatus.OK, "Fetched transactions for " + month);
+//    }
 
     @GetMapping ("/session-verification")
     public void whoAmI (HttpServletRequest request) {
