@@ -93,6 +93,16 @@ public class GatewayController {
         markSuccess(contextDTO, HttpStatus.NO_CONTENT, "Successfully logged out");
     }
 
+    @PostMapping("/new-txn")
+    public void newTxn (@RequestBody String transactions,
+                        @AuthenticationPrincipal AuthenticatedDTO user,
+                        HttpServletRequest request){
+        RequestContextDTO contextDTO = contextHandler(request);
+        contextDTO.setUserName(user.getUsername());
+        contextDTO.setCategory(LogCategory.OPERATION);
+        markSuccess(contextDTO, HttpStatus.CREATED, txnClient.newTxn(transactions));
+    }
+
     //Helper
     private RequestContextDTO contextHandler (HttpServletRequest request){
         RequestContextDTO ctx = (RequestContextDTO) request.getAttribute("context");

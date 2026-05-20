@@ -93,3 +93,29 @@ INSERT INTO transactions (username, name, amount, is_expense, default_category, 
 ('tester01', 'Gas Bill', 180.00, true, 'bills', NULL, 1),
 ('tester01', 'Refund', 120.00, false, 'other', NULL, 0),
 ('tester01', 'Misc Shop', 15.00, true, 'other', NULL, 0);"
+
+curl -vv -X POST http://localhost:8080/app/new-txn \
+  -H "Content-Type: application/json" \
+  -H "Cookie: access=$TST_COOKIE" \
+  -d '[
+    {
+      "timestamp": "2026-05-20T14:30:00",
+      "name": "Supermarket Shopping",
+      "amount": 150.50,
+      "userDefinedCategory": "groceries",
+      "userDefinedRegular": 0,
+      "categoryType": "EXPENSE",
+      "comment": "Weekly groceries"
+    },
+    {
+      "timestamp": "2026-05-21T09:00:00",
+      "name": "Gas Station",
+      "amount": 45.00,
+      "userDefinedCategory": "vehicle",
+      "userDefinedRegular": 14,
+      "categoryType": "EXPENSE",
+      "comment": "Bi-weekly refill"
+    }
+  ]'
+
+  export TST_COOKIE=$(echo "$LOGIN_RESPONSE" | grep -Fi "Set-Cookie: access" | sed -E 's/.*access=([^;]+).*/\1/' | tr -d '\r')

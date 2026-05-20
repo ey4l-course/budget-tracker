@@ -19,4 +19,7 @@ public interface TxnClient {
 
     @GetMapping(value = "/get-dash", consumes = MediaType.APPLICATION_JSON_VALUE)
     String getDashboard(@RequestParam ("month") String month);
+
+    @PostMapping(value = "/new-txn", consumes = MediaType.APPLICATION_JSON_VALUE)
+    String newTxn(@RequestBody String transactions);
 }

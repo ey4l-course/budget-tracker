@@ -27,6 +27,6 @@ private int defaultRegularInterval;
 private int userDefinedRegular;
 private String comment;
 private int systemFlag;
-private TxnType categoryType;
+private String categoryType;
 private LocalDate transactionDate;
 }
