@@ -2,6 +2,7 @@ package com.budget.transactions.service;
 
 import com.budget.common.client.InternalUserClient;
 import com.budget.common.dto.BudgetCatDTO;
+import com.budget.transactions.model.CategoryDTO;
 import com.budget.transactions.model.UpdateBudgetConfigDTO;
 import com.budget.transactions.repository.BudgetRepository;
 import org.springframework.stereotype.Service;

@@ -42,6 +42,10 @@ curl -v -i -X GET http://localhost:8080/app/login \
 -H "Content-Type: application/json" \
 -H "Cookie: $TST_COOKIE"
 
+curl -v -i -X GET http://localhost:8080/app/fetch-budget-configs \
+-H "Content-Type: application/json" \
+-H "Cookie: $TST_COOKIE"
+
 curl -v -i -X POST http://localhost:8080/app/activate-account \
 -H "Content-Type: application/json" \
 -H "Cookie: $TST_COOKIE" \

@@ -93,6 +93,16 @@ public class GatewayController {
         markSuccess(contextDTO, HttpStatus.NO_CONTENT, "Successfully logged out");
     }
 
+    @GetMapping("/fetch-budget-configs")
+    public void fetchBudgetConfigs (@AuthenticationPrincipal AuthenticatedDTO user,
+                                    HttpServletRequest request){
+        RequestContextDTO contextDTO = contextHandler(request);
+        contextDTO.setUserName(user.getUsername());
+        contextDTO.setCategory(LogCategory.OPERATION);
+        contextDTO.setPayload(txnClient.fetchBudgetConfigs());
+        markSuccess(contextDTO, HttpStatus.OK, "Configs successfully fetched");
+    }
+
     @PostMapping("/new-txn")
     public void newTxn (@RequestBody String transactions,
                         @AuthenticationPrincipal AuthenticatedDTO user,

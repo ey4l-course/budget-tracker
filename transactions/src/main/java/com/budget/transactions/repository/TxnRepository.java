@@ -1,13 +1,11 @@
 package com.budget.transactions.repository;
 
 import com.budget.common.exceptions.CriticalIncidentException;
-import com.budget.transactions.model.TransactionDTO;
 import com.budget.transactions.model.TransactionEntity;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;

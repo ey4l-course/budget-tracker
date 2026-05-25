@@ -21,7 +21,7 @@ security:
 
 jwt:
   access:
-    expiry: 30000 #5 minutes
+    expiry: 300000 #5 minutes
   refresh:
     expiry: 3600000 #1 hour
 

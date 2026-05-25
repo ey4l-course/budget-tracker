@@ -82,4 +82,8 @@ public class WarmupService {
         fetchedCategories.sort(Comparator.comparing(CategoryDTO::getName));
         return fetchedCategories;
     }
+
+    public List<BudgetCatDTO> getConfigs (String username){
+        return cfgRepo.getConfigs(username);
+    }
 }

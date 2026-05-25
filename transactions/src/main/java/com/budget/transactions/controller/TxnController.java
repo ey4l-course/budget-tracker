@@ -38,6 +38,7 @@ public class TxnController {
     public void warmup(@RequestBody String username){
         FetchDashDTO dto = setCurrentMonth(username);
         cacheFacade.warmUpFacade(dto);
+        cacheFacade.configWarmupFacade(username);
         System.out.println("Warming up. username: " + username);
     }
 
@@ -71,6 +72,12 @@ public class TxnController {
                                       @AuthenticationPrincipal AuthenticatedDTO user){
         String username = user.getUsername();
         return cfgService.updateBudgetConfig(data, username);
+    }
+
+    @GetMapping ("/get-budget-configs")
+    public List<BudgetCatDTO> getBudgetConfigs (@AuthenticationPrincipal AuthenticatedDTO user){
+        String username = user.getUsername();
+        return cacheFacade.getConfigCache(username);
     }
 
     @PostMapping ("/new-txn")

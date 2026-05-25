@@ -36,4 +36,9 @@ public class BudgetRepository {
         String sql = "SELECT category_name, category_type, amount_limit  FROM budget_configs WHERE username = ? ORDER BY category_name";
         return jdbc.query(sql,new BudgetCatMapper(), username);
     }
+
+    public String isIncomeOrExpense(String userDefinedCategory, String username) {
+        String sql = "SELECT category_type FROM budget_configs WHERE category_name = ? AND username = ?";
+        return jdbc.queryForObject(sql, String.class, userDefinedCategory, username);
+    }
 }
