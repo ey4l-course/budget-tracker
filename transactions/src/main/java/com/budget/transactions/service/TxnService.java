@@ -26,14 +26,13 @@ public class TxnService {
     }
 
     public String newTxn(List<TransactionEntity> data) {
-        System.out.println(data);
         util.validateTxn(data);
         List<FetchDashDTO> keys = util.generateCacheKeys(data);
         List<BudgetCatDTO> configs = cacheFacade.getConfigCache(data.getFirst().getUsername());
         Map<String, String> configsMap = configs.stream()
                 .collect(Collectors.toMap(BudgetCatDTO::getCategoryName, BudgetCatDTO::getCategoryType, (existing, replacement) -> existing));
         for (TransactionEntity txn : data){
-            if (txn.getCategoryType().isBlank()) {
+            if (txn.getCategoryType() == null || txn.getCategoryType().isBlank()) {
                 if (!configsMap.containsKey(txn.getUserDefinedCategory()))
                     throw new  IllegalArgumentException("Category " + txn.getUserDefinedCategory() + " not found for user");
                 txn.setCategoryType(configsMap.get(txn.getUserDefinedCategory()));

@@ -51,7 +51,6 @@ public class TxnController {
     @GetMapping ("/get-dash")
     public List<CategoryDTO> getDashData (@AuthenticationPrincipal AuthenticatedDTO user,
                                           @RequestParam(required = false, name = "month") @DateTimeFormat(pattern = "yyyy-MM")YearMonth month){
-        System.out.println(month);
         FetchDashDTO dto = new FetchDashDTO(
                 user.getUsername(),
                 month.atDay(1).atStartOfDay(),
